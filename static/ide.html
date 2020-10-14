@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang=fr>
+<head>
+	<meta charset="utf8"/><!-- bug Chromium : guillemets obligatoires ici -->
+	<title>IDE en ligne</title>
+	<link rel=stylesheet href=https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap-reboot.min.css>
+	<style>
+		.gutter-horizontal { cursor: ew-resize }
+		.icon {
+			background-color: none;
+			border: none;
+			margin-left: 1px;
+			padding: 0;
+		}
+		.icon:hover:enabled { background-color: lightgray }
+	</style>
+</head>
+<body style="
+	background-color: whitesmoke;
+	display: flex;
+	flex-direction: column;
+	width: 100vw;
+	height: 100vh">
+	<div style="
+		display: flex;
+		flex-wrap: wrap;
+		padding: 1px 4px">
+		<span id=lbl_nom_fichier>Sans titre.txt</span>
+		<span id=lbl_indicateur_modifie style="visibility: hidden">*</span>
+		<!-- icones : https://icons8.com/icon/pack/editing/fluent-systems-regular -->
+		<button id=btn_nouveau class=icon><img src=nouveau.png width=24></button>
+		<button id=btn_ouvrir class=icon><img src=ouvrir.png width=24></button>
+		<button id=btn_enregistrer class=icon><img src=enregistrer.png width=24></button>
+		<button id=btn_enregistrer_sous class=icon><img src=enregistrer_sous.png width=24></button>
+		<button id=btn_executer class=icon disabled><img src=executer.png width=24></button>
+	</div>
+	<div style="
+		flex: auto;
+		display: flex">
+		<div id=txt_editeur style="
+			border: 1px solid lightgray;
+			flex-basis: 50%"></div>
+		<textarea id=txt_console readonly style="
+			border: 1px solid lightgray;
+			flex-basis: 50%;
+			font-family: monospace;
+			resize: none"></textarea>
+	</div>
+	<script src=https://pagecdn.io/lib/ace/1.4.12/ace.min.js></script>
+	<script src=https://pagecdn.io/lib/ace/1.4.12/ext-modelist.min.js></script>
+	<script src=https://unpkg.com/split.js/dist/split.min.js></script>
+	<script src=ide.js></script>
+</body>

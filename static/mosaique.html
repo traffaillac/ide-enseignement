@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang=fr>
+<head>
+	<meta charset=utf8/>
+	<title>Vue des apprenants</title>
+	<link rel=stylesheet href=https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css integrity=sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T crossorigin=anonymous>
+	<style>
+		.vue {
+			align-items: center;
+			background-color: dodgerblue;
+			cursor: pointer;
+			display: flex;
+			justify-content: center;
+		}
+	</style>
+</head>
+<body>
+	<div id=mosaique style="
+		display: grid;
+		gap: 3px;
+		grid-template-columns: auto auto auto;
+		grid-template-rows: auto auto auto;
+		height: 100vh;
+		margin: auto">
+	</div>
+	<div id=overlay style="
+		position: fixed;
+		display: none;
+		align-items: center;
+		justify-content: center;
+		width: 100%;
+		height: 100%;
+		top: 0;
+		left: 0;
+		background-color: rgba(0, 0, 0, .5);
+		cursor: pointer" onclick="this.style.display='none'">
+		<div id=txt_editeur style="
+			border: 1px solid lightgray;
+			height: 80%;
+			width: 80%;
+			cursor: auto" onclick="event.stopPropagation()"></div>
+	</div>
+	
+	<script src=https://pagecdn.io/lib/ace/1.4.12/ace.min.js></script>
+	<script src=https://pagecdn.io/lib/ace/1.4.12/ext-modelist.min.js></script>
+	<script src=mosaique.js></script>
+</body>
