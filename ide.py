@@ -1,36 +1,72 @@
-from flask import Flask, jsonify, render_template, request
+from flask import Flask, abort, jsonify, render_template, request, send_file
 
-# L'ensemble des données d'une mosaïque est une liste, pour pouvoir distinguer
-#   les groupes de vues des vues individuelles.
-# Chaque vue est un dict avec les attributs suivants :
-# _ user - nom de l'utilisateur tel qu'on l'affiche (clé primaire)
-# _ timestamp - date de dernière activité
-# _ filename - nom du fichier en cours de modification
-# _ code - contenu du fichier en cours de modification
-donnees = []
+app = Flask(__name__)
 
 
-app = Flask(__name__, static_url_path='')
+# Données persistantes du serveur
+acces_ouverts = {
+    'admin': {'page': 'admin'},
+    'enseignant': {'page': 'enseignant', 'salon': 0},
+    'apprenant': {'page': 'apprenant', 'salon': 0},
+    'expiree': {'page': 'expiree'},
+}
+salons = [
+  {
+    'apprenants': {
+      'traffail': {
+        'nom_prenom': 'Thibault Raffaillac',
+        'code': 'print("Hello world!")',
+        'console': 'Hello world!',
+        'parametres_ide': {
+            'position_separateur': "50%",
+            'theme_editeur': 'solarized_light',
+            'taille_tabulations': 4,
+            'tabulation_par_espaces': True,
+            'envoi_automatique': True,
+        },
+        'activite': {
+          1602673199889: {'action': 'enregistrement'},
+        },
+        'avancement': [1602673199889],
+        'memo_enseignant': 'Test de mémo 🙂',
+      },
+    },
+    'tests': [],
+  },
+]
 
 
-@app.route('/')
-def index():
-	return app.send_static_file('ide.html')
+
+def page_apprenant(salon):
+    if not request.args:
+        return send_file('static/ide.html')
+    try:
+        identifiant = request.cookies['identifiant']
+        apprenant = salon['apprenants'][identifiant]
+    except: abort(401)
+    tache = request.args['tache']
+    if tache == 'initialisation':
+        json = {k: apprenant[k] for k in ('nom_prenom', 'code', 'parametres_ide')}
+        return jsonify(json)
 
 
-@app.route('/protocole', methods=['GET', 'POST'])
-def protocole():
-	if request.method == 'POST':
-		new = request.json
-		user = new['user']
-		try:
-			next(d for d in donnees if d['user'] == user).update(new)
-		except:
-			donnees.append(new)
-		return ('', 204)
-	else:
-		return jsonify(donnees)
+
+@app.route('/<adresse>')
+def repartiteur(adresse):
+    try: acces = acces_ouverts[adresse]
+    except: abort(404)
+    page = acces['page']
+    if page == 'admin':
+        return page_admin()
+    elif page == 'expiree':
+        abort(410)
+    salon = salons[acces['salon']]
+    if page == 'apprenant':
+        return page_apprenant(salon)
+    elif page == 'enseignant':
+        return page_enseignant(salon)
+
 
 
 if __name__ == '__main__':
-	app.run()
+    app.run()

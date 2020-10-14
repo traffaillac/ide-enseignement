@@ -13,7 +13,6 @@ Les données de premier rang sont des variables globales du serveur. Lors de son
 * __acces_ouverts__ - dictionnaire indexé par l'adresse de chaque page
 	* __page__ - nom de la page pour redirection (`admin`, `enseignant`, `apprenant` ou `expiree`)
 	* __salon__ - indice du salon pour enseignant et apprenant
-
 * __salons__ - liste des informations sur chaque salon
 	* __apprenants__ - dictionnaire indexé par l'identifiant de chaque apprenant
 		* __nom_prenom__ - chaîne telle qu'affichée dans la mosaïque
@@ -25,7 +24,7 @@ Les données de premier rang sont des variables globales du serveur. Lors de son
 			* __tabulation__ - chaîne du texte inséré par la touche TAB (ex. `\t`)
 			* __envoi_automatique__ - booléen indiquant si le code est automatiquement envoyé lors de chaque modification du fichier
 		* __activite__ - dictionnaire d'évènements indexée par timestamp
-			* __action__ - `enregistrement`, `demande_revue`, `revue_enseignant`, `commit`
+			* __action__ - `connexion`, `deconnexion`, `enregistrement`, `demande_revue`, `revue_enseignant`, `commit`
 			* __description__ - texte de description si commit
 		* __avancement__ - liste des timestamps des évènements où ont été passés chaque niveau de test, indexée par les numéros des tests
 		* __memo_enseignant__ - texte conservant les notes de l'enseignant pour chaque apprenant
@@ -55,12 +54,13 @@ Tâches à gérer :
 
 Tâches à gérer :
 
-* afficher un onglet de bienvenue avec une présentation brève de l'outil
 * afficher un onglet pour paramétrer l'éditeur et l'interface (et décrire les paramètres avec du texte).
 * associer un fichier natif Python au texte de l'éditeur (si permis par le navigateur), tel que chaque modification extérieure du fichier mette à jour l'éditeur, et chaque enregistrement depuis l'éditeur modifie le fichier.
 * envoyer le code au serveur, soit automatiquement lors de l'enregistrement, soit lors de chaque demande de revue de code.
 * exécuter le script courant dans un onglet de terminal Python avec coloration des différents types de messages (stdout, stderr, exceptions, informations)
 * écrire dans la console stdin (sous le terminal Python) ou y charger le contenu d'un fichier, le texte n'étant pas supprimé après chaque exécution du script.
+* afficher un onglet de bienvenue avec une présentation brève de l'outil
+* réinitialiser son idenfiant courant pour se reconnecter
 
 Notes :
 
