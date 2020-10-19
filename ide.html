@@ -1,0 +1,69 @@
+<!doctype html>
+<html lang=fr>
+<head>
+	<meta charset="utf8"/><!-- bug Chromium : guillemets obligatoires ici -->
+	<title>IDE en ligne</title>
+	<link rel=stylesheet href=https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap-reboot.min.css>
+	<style>
+		.gutter-horizontal { cursor: ew-resize }
+		.icon {
+			flex: none;
+			background-color: none;
+			border: none;
+			margin-left: 1px;
+			padding: 0;
+		}
+		.icon:disabled { opacity: 0.5 }
+		.icon:hover:enabled { background-color: lightgray }
+	</style>
+</head>
+<body style="
+	background-color: whitesmoke;
+	width: 100vw;
+	height: 100vh;
+	display: flex;
+	flex-flow: row nowrap;
+	align-items: stretch;
+	justify-content: flex-start">
+	<div id=panneau_gauche style="
+		flex: auto;
+		display: flex;
+		flex-flow: column nowrap;
+		align-items: stretch;
+		justify-content: flex-start">
+		<fieldset id=fld_barre_outils disabled>
+			<div style="
+			flex: none;
+			display: flex;
+			flex-flow: row wrap;
+			align-items: center;
+			justify-content: flex-start;
+			padding: 1px 4px">
+				<span id=lbl_nom_fichier>Sans titre.txt</span>
+				<span id=lbl_indicateur_modifie style="visibility: hidden">*</span>
+				<!-- icones : https://icons8.com/icon/pack/editing/fluent-systems-regular -->
+				<button id=btn_nouveau class=icon><img src=static/nouveau.png width=24></button>
+				<button id=btn_ouvrir class=icon><img src=static/ouvrir.png width=24></button>
+				<button id=btn_enregistrer class=icon><img src=static/enregistrer.png width=24></button>
+				<button id=btn_enregistrer_sous class=icon><img src=static/enregistrer_sous.png width=24></button>
+				<button id=btn_executer class=icon disabled><img src=static/executer.png width=24></button>
+				<span id=lbl_nom_prenom></span>
+			</div>
+		</fieldset>
+		<div id=txt_editeur style="
+			flex: auto;
+			border: 1px solid lightgray"></div>
+	</div>
+	<div id=panneau_droite style="
+		flex: auto">
+		<textarea id=txt_console readonly style="
+			width: 100%;
+			height: 100%;
+			border: 1px solid lightgray;
+			font-family: monospace;
+			resize: none"></textarea>
+	</div>
+	<script src=https://pagecdn.io/lib/ace/1.4.12/ace.min.js></script>
+	<script src=https://unpkg.com/split.js/dist/split.min.js></script>
+	<script src=static/ide.js></script>
+</body>

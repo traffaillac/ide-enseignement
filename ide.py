@@ -39,7 +39,7 @@ salons = [
 
 def page_apprenant(salon):
     if not request.args:
-        return send_file('static/ide.html')
+        return send_file('ide.html')
     try:
         identifiant = request.cookies['identifiant']
         apprenant = salon['apprenants'][identifiant]

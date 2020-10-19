@@ -11,19 +11,6 @@ const parametres = {
 
 
 
-// initialisation de l'interpréteur Python dans un thread distinct
-txt_console.value += "Chargement de l'interpréteur Python..."
-const pyodide_worker = new Worker('./static/webworker.js')
-pyodide_worker.onerror = (e) => {
-	console.log(`Error in pyodide_worker at ${e.filename}, line ${e.lineno}: ${e.message}`)
-}
-pyodide_worker.onmessage = (e) => {
-	btn_executer.disabled = false
-	txt_console.value += e.data
-}
-
-
-
 // initialisation de l'éditeur de texte
 ace.config.set('basePath', 'https://pagecdn.io/lib/ace/1.4.12/')
 const ace_editeur = ace.edit('txt_editeur', {
@@ -37,6 +24,29 @@ ace_editeur.session.on('change', () => {
 		lbl_indicateur_modifie.style.visibility = 'visible'
 	}
 })
+
+
+
+// initialisation du séparateur mobile entre panneaux gauche et droite
+Split(['#panneau_gauche', '#panneau_droite'], {
+	elementStyle: (_, s, g) => ({'flex-basis': `calc(${s}% - ${g}px)`}),
+	gutterStyle: (_, g) => ({'flex-basis': `${g}px`}),
+	gutterSize: 4,
+	snapOffset: 0,
+})
+
+
+
+// initialisation de l'interpréteur Python dans un thread distinct
+txt_console.value += "Chargement de l'interpréteur Python..."
+const pyodide_worker = new Worker('./static/webworker.js')
+pyodide_worker.onerror = (e) => {
+	console.log(`Error in pyodide_worker at ${e.filename}, line ${e.lineno}: ${e.message}`)
+}
+pyodide_worker.onmessage = (e) => {
+	btn_executer.disabled = false
+	txt_console.value += e.data
+}
 
 
 
@@ -59,16 +69,6 @@ if (ajax.status === 200) {
 	ace_editeur.setReadOnly(false)
 	fld_barre_outils.disabled = false
 }
-
-
-
-// initialisation du séparateur mobile entre panneaux gauche et droite
-Split(['#txt_editeur', '#txt_console'], {
-	elementStyle: (_, s, g) => ({'flex-basis': `calc(${s}% - ${g}px)`}),
-	gutterStyle: (_, g) => ({'flex-basis': `${g}px`}),
-	gutterSize: 4,
-	snapOffset: 0,
-})
 
 
 
