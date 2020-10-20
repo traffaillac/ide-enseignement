@@ -9,30 +9,27 @@
 		.gutter-horizontal { cursor: ew-resize }
 		
 		/* styles spécifiques à la barre d'outils */
-		.icon {
+		.icone {
 			flex: none;
 			background-color: none;
 			border: none;
 			margin-left: 1px;
 			padding: 0;
 		}
-		.icon:disabled { opacity: 0.5 }
-		.icon:hover:enabled { background-color: lightgray }
+		.icone:disabled { opacity: 0.5 }
+		.icone:hover:enabled { background-color: lightgray }
 		
 		/* gestion des onglets du panneau de droite */
-		.rad_onglet { display: none }
-		.lbl_onglet {
-			border-left: 10px solid #ccc;
+		.onglet {
+			cursor: pointer;
+			padding: 1px 8px;
+			transition: 0.3s;
 		}
-		.volet {
-			flex: 0 0 100%;
-			place-self: end end;
-			max-height: 100%;
-			display: none;
+		.onglet:hover {
+			background-color: #e4e4e4;
 		}
-		#rad_console:checked ~ #txt_console,
-		#rad_chat:checked ~ #div_chat {
-			display: block;
+		.onglet_actif {
+			background-color: lightgray;
 		}
 	</style>
 </head>
@@ -42,30 +39,28 @@
 	height: 100vh;
 	display: flex;
 	flex-flow: row nowrap;
-	align-items: stretch;
-	justify-content: flex-start">
+	align-items: stretch">
 	<div id=panneau_gauche style="
 		flex: auto;
 		display: flex;
 		flex-flow: column nowrap;
-		align-items: stretch;
-		justify-content: flex-start">
+		align-items: stretch">
 		<fieldset id=fld_barre_outils disabled>
 			<div style="
-			flex: none;
-			display: flex;
-			flex-flow: row wrap;
-			align-items: center;
-			justify-content: flex-start;
-			padding: 1px 4px">
+				padding: 1px 4px;
+				flex: none;
+				display: flex;
+				flex-flow: row wrap;
+				align-items: center;
+				justify-content: start">
 				<span id=lbl_nom_fichier>Sans titre.txt</span>
 				<span id=lbl_indicateur_modifie style="visibility: hidden">*</span>
 				<!-- icones : https://icons8.com/icon/pack/editing/fluent-systems-regular -->
-				<button id=btn_nouveau class=icon><img src=static/nouveau.png width=24></button>
-				<button id=btn_ouvrir class=icon><img src=static/ouvrir.png width=24></button>
-				<button id=btn_enregistrer class=icon><img src=static/enregistrer.png width=24></button>
-				<button id=btn_enregistrer_sous class=icon><img src=static/enregistrer_sous.png width=24></button>
-				<button id=btn_executer class=icon disabled><img src=static/executer.png width=24></button>
+				<button id=btn_nouveau class=icone><img src=static/nouveau.png width=24></button>
+				<button id=btn_ouvrir class=icone><img src=static/ouvrir.png width=24></button>
+				<button id=btn_enregistrer class=icone><img src=static/enregistrer.png width=24></button>
+				<button id=btn_enregistrer_sous class=icone><img src=static/enregistrer_sous.png width=24></button>
+				<button id=btn_executer class=icone disabled><img src=static/executer.png width=24></button>
 				<span id=lbl_nom_prenom></span>
 			</div>
 		</fieldset>
@@ -76,22 +71,26 @@
 	<div id=panneau_droite style="
 		flex: auto;
 		display: flex;
-		flex-flow: row wrap;
-		place-content: start start;
-		place-items: start start;
-		align-items: flex-start;
-		align-content: flex-start;
-		justify-content: flex-start">
-		<input id=rad_console class=rad_onglet type=radio name=onglets_droite checked>
-		<label id=lbl_console class=lbl_onglet for=rad_console>Console</label>
-		<input id=rad_chat class=rad_onglet type=radio name=onglets_droite>
-		<label id=lbl_chat class=lbl_onglet for=rad_chat>Messages</label>
-		<textarea id=txt_console class=volet readonly style="
+		flex-flow: column nowrap;
+		align-items: stretch">
+		<div style="
+			flex: none;
+			display: flex;
+			flex-flow: row nowrap;
+			align-items: end;
+			justify-content: start">
+			<span id=spn_console class=onglet onclick="selection_onglet(this, txt_console)">Console</span>
+			<span id=spn_chat class=onglet onclick="selection_onglet(this, div_chat)">Messages</span>
+		</div>
+		<textarea id=txt_console readonly style="
+			flex: auto;
 			border: 1px solid lightgray;
 			font-family: monospace;
 			resize: none"></textarea>
-		<div id=div_chat class=volet style="
-			background-color: aliceblue">
+		<div id=div_chat style="
+			flex: auto;
+			background-color: white;
+			border: 1px solid lightgray">
 			Chat !
 		</div>
 	</div>

@@ -37,6 +37,19 @@ Split(['#panneau_gauche', '#panneau_droite'], {
 
 
 
+// gestion des onglets du panneau de droite
+function selection_onglet(onglet, volet) {
+	spn_console.classList.remove('onglet_actif')
+	spn_chat.classList.remove('onglet_actif')
+	onglet.classList.add('onglet_actif')
+	txt_console.style.display = 'none'
+	div_chat.style.display = 'none'
+	volet.style.display = null
+}
+selection_onglet(spn_console, txt_console)
+
+
+
 // initialisation de l'interpréteur Python dans un thread distinct
 txt_console.value += "Chargement de l'interpréteur Python..."
 const pyodide_worker = new Worker('./static/webworker.js')
