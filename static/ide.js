@@ -3,7 +3,6 @@ const ajax = new XMLHttpRequest()
 let ref_fichier = null
 let ignorer_prochaine_modification = false
 const parametres = {
-	position_separateur: '50%',
 	theme_editeur: 'xcode',
 	tabulation: '    ',
 	envoi_automatique: true,
@@ -29,10 +28,12 @@ ace_editeur.session.on('change', () => {
 
 // initialisation du séparateur mobile entre panneaux gauche et droite
 Split(['#panneau_gauche', '#panneau_droite'], {
-	elementStyle: (_, s, g) => ({'flex-basis': `calc(${s}% - ${g}px)`}),
-	gutterStyle: (_, g) => ({'flex-basis': `${g}px`}),
+	sizes: JSON.parse(localStorage.getItem('split_sizes') || '[50,50]'),
 	gutterSize: 4,
 	snapOffset: 0,
+	elementStyle: (_, s, g) => ({'flex-basis': `calc(${s}% - ${g}px)`}),
+	gutterStyle: (_, g) => ({'flex-basis': `${g}px`}),
+	onDragEnd: (s) => localStorage.setItem('split_sizes', JSON.stringify(s)),
 })
 
 
