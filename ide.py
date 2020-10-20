@@ -17,13 +17,6 @@ salons = [
         'nom_prenom': 'Thibault Raffaillac',
         'code': 'print("Hello world!")',
         'console': 'Hello world!',
-        'parametres_ide': {
-            'position_separateur': "50%",
-            'theme_editeur': 'solarized_light',
-            'taille_tabulations': 4,
-            'tabulation_par_espaces': True,
-            'envoi_automatique': True,
-        },
         'activite': {
           1602673199889: {'action': 'enregistrement'},
         },
@@ -46,7 +39,7 @@ def page_apprenant(salon):
     except: abort(401)
     tache = request.args['tache']
     if tache == 'initialisation':
-        json = {k: apprenant[k] for k in ('nom_prenom', 'code', 'parametres_ide')}
+        json = {k: apprenant[k] for k in ('nom_prenom')}
         return jsonify(json)
 
 

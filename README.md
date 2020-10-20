@@ -18,11 +18,6 @@ Les données de premier rang sont des variables globales du serveur. Lors de son
 		* __nom_prenom__ - chaîne telle qu'affichée dans la mosaïque
 		* __code__ - texte contenant le dernier programme obtenu
 		* __console__ - texte affiché dans la console de l'apprenant (à passer dans un sanitizer côté client mosaïque)
-		* __parametres_ide__ - dictionnaire permettant de conserver les paramètres de l'éditeur de l'étudiant à chaque reconnexion
-			* __position_separateur__ - coordonnée x en pixels du séparateur vertical
-			* __theme_editeur__ - identifiant du thème utilisé par ACE
-			* __tabulation__ - chaîne du texte inséré par la touche TAB (ex. `\t`)
-			* __envoi_automatique__ - booléen indiquant si le code est automatiquement envoyé lors de chaque modification du fichier
 		* __activite__ - dictionnaire d'évènements indexée par timestamp
 			* __action__ - `connexion`, `deconnexion`, `enregistrement`, `demande_revue`, `revue_enseignant`, `commit`
 			* __description__ - texte de description si commit

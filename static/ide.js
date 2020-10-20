@@ -45,8 +45,12 @@ function selection_onglet(onglet, volet) {
 	txt_console.style.display = 'none'
 	div_chat.style.display = 'none'
 	volet.style.display = null
+	localStorage.setItem('onglet_actif', onglet.id)
+	localStorage.setItem('volet_actif', volet.id)
 }
-selection_onglet(spn_console, txt_console)
+selection_onglet(
+	document.getElementById(localStorage.getItem('onglet_actif') || 'spn_console'),
+	document.getElementById(localStorage.getItem('volet_actif') || 'txt_console'))
 
 
 
