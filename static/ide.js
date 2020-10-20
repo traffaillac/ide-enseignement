@@ -2,11 +2,7 @@
 const ajax = new XMLHttpRequest()
 let ref_fichier = null
 let ignorer_prochaine_modification = false
-const parametres = {
-	theme_editeur: 'xcode',
-	tabulation: '    ',
-	envoi_automatique: true,
-}
+let envoi_automatique = true
 
 
 
@@ -14,7 +10,10 @@ const parametres = {
 ace.config.set('basePath', 'https://pagecdn.io/lib/ace/1.4.12/')
 const ace_editeur = ace.edit('txt_editeur', {
 	mode: 'ace/mode/python',
-	readOnly: true})
+	tabSize: JSON.parse(localStorage.getItem('ace_tabSize') || '4'),
+	theme: localStorage.getItem('ace_theme') || 'ace/theme/xcode',
+	useSoftTabs: JSON.parse(localStorage.getItem('ace_useSoftTabs') || 'true'),
+})
 //ace_editeur.setTheme('ace/theme/mariana')
 ace_editeur.session.on('change', () => {
 	if (ignorer_prochaine_modification) {
@@ -75,11 +74,6 @@ ajax.send()
 if (ajax.status === 200) {
 	const data = JSON.parse(ajax.responseText)
 	lbl_nom_prenom.innerText = data.nom_prenom
-	Object.assign(parametres, data.parametres_ide)
-	ace_editeur.setTheme(`ace/theme/${parametres.theme_editeur}`)
-	ace_editeur.session.setTabSize(parametres.taille_tabulations)
-	ace_editeur.session.setUseSoftTabs(parametres.tabulation_par_espaces)
-	ace_editeur.setValue(data.code)
 	ace_editeur.setReadOnly(false)
 	fld_barre_outils.disabled = false
 }
