@@ -1,8 +1,57 @@
+// fonctions de communication avec le serveur
+function connexion() {
+	const ajax = new XMLHttpRequest()
+	ajax.onreadystatechange = () => {
+		if (ajax.readyState === 4 && ajax.status === 200) {
+			const data = JSON.parse(ajax.responseText)
+			fld_barre_outils.disabled = false
+			lbl_nom_prenom.innerText = data.nom_prenom
+			ace_editeur.setReadOnly(false)
+		}
+	}
+	ajax.open('POST', '?action=connexion')
+	ajax.send()
+}
+
+function deconnexion() {
+	const ajax = new XMLHttpRequest()
+	ajax.open('POST', '?action=deconnexion')
+	ajax.send()
+}
+
+function envoi_code() {
+	const ajax = new XMLHttpRequest()
+	ajax.open('POST', '?action=envoi_code')
+	ajax.setRequestHeader('Content-Type', 'application/json')
+	ajax.send(JSON.stringify({
+		code: ace_editeur.getValue(),
+		console: txt_console.innerText
+	}))
+}
+
+function demande_revue() {
+	const ajax = new XMLHttpRequest()
+	ajax.open('POST', '?action=demande_revue')
+	ajax.send()
+}
+
+
+
 // variables globales à l'application
-const ajax = new XMLHttpRequest()
 let ref_fichier = null
 let ignorer_prochaine_modification = false
 let envoi_automatique = true
+
+
+
+// obtention de l'identifiant de l'apprenant et téléchargement des données
+let identifiant = (document.cookie.split('; ').find(kv => kv.startsWith('identifiant=')) || 'identifiant=').slice('identifiant='.length)
+if (identifiant === '') {
+	identifiant = prompt('Veuillez renseigner votre identifiant pour accéder à ce salon') || ''
+	document.cookie = `identifiant=${identifiant}`
+}
+onpageshow = connexion
+onpagehide = deconnexion
 
 
 
@@ -10,11 +59,11 @@ let envoi_automatique = true
 ace.config.set('basePath', 'https://pagecdn.io/lib/ace/1.4.12/')
 const ace_editeur = ace.edit('txt_editeur', {
 	mode: 'ace/mode/python',
+	readOnly: true,
 	tabSize: JSON.parse(localStorage.getItem('ace_tabSize') || '4'),
 	theme: localStorage.getItem('ace_theme') || 'ace/theme/xcode',
 	useSoftTabs: JSON.parse(localStorage.getItem('ace_useSoftTabs') || 'true'),
 })
-//ace_editeur.setTheme('ace/theme/mariana')
 ace_editeur.session.on('change', () => {
 	if (ignorer_prochaine_modification) {
 		ignorer_prochaine_modification = false
@@ -50,7 +99,8 @@ function selection_onglet(onglet, volet) {
 }
 selection_onglet(
 	document.getElementById(localStorage.getItem('onglet_actif') || 'spn_console'),
-	document.getElementById(localStorage.getItem('volet_actif') || 'txt_console'))
+	document.getElementById(localStorage.getItem('volet_actif') || 'txt_console')
+)
 
 
 
@@ -63,23 +113,6 @@ pyodide_worker.onerror = (e) => {
 pyodide_worker.onmessage = (e) => {
 	btn_executer.disabled = false
 	txt_console.value += e.data
-}
-
-
-
-// obtention de l'identifiant de l'apprenant et téléchargement des données
-let identifiant = (document.cookie.split('; ').find(kv => kv.startsWith('identifiant=')) || 'identifiant=').slice('identifiant='.length)
-if (identifiant === '') {
-	identifiant = prompt('Veuillez renseigner votre identifiant pour accéder à ce salon') || ''
-	document.cookie = `identifiant=${identifiant}`
-}
-ajax.open('GET', `?action=connexion`, false)
-ajax.send()
-if (ajax.status === 200) {
-	const data = JSON.parse(ajax.responseText)
-	lbl_nom_prenom.innerText = data.nom_prenom
-	ace_editeur.setReadOnly(false)
-	fld_barre_outils.disabled = false
 }
 
 
@@ -104,43 +137,6 @@ onkeydown = (e) => {
 		e.preventDefault()
 		btn_enregistrer_sous.click()
 	}
-}
-
-
-
-// fonctions de communication avec le serveur
-function connexion() {
-	const ajax = new XMLHttpRequest()
-	ajax.onreadystatechange = () => {
-		if (ajax.readyState === 4 && ajax.status === 200) {
-			const data = JSON.parse(ajax.responseText)
-			lbl_nom_prenom.innerText = data.nom_prenom
-		}
-	}
-	ajax.open('POST', '?action=connexion')
-	ajax.send()
-}
-
-function deconnexion() {
-	const ajax = new XMLHttpRequest()
-	ajax.open('POST', '?action=deconnexion')
-	ajax.send()
-}
-
-function envoi_code() {
-	const ajax = new XMLHttpRequest()
-	ajax.open('POST', '?action=envoi_code')
-	ajax.setRequestHeader('Content-Type', 'application/json')
-	ajax.send(JSON.stringify({
-		code: ace_editeur.getValue(),
-		console: txt_console.innerText
-	}))
-}
-
-function demande_revue() {
-	const ajax = new XMLHttpRequest()
-	ajax.open('POST', '?action=demande_revue')
-	ajax.send()
 }
 
 

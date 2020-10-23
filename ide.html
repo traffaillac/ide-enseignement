@@ -45,23 +45,25 @@
 		display: flex;
 		flex-flow: column nowrap;
 		align-items: stretch">
-		<div style="
-			padding: 1px 4px;
-			flex: none;
-			display: flex;
-			flex-flow: row wrap;
-			align-items: center;
-			justify-content: start">
-			<span id=lbl_nom_prenom></span>
-			<span id=lbl_nom_fichier>Sans titre.txt</span>
-			<span id=lbl_indicateur_modifie style="visibility: hidden">*</span>
-			<!-- icones : https://icons8.com/icon/pack/editing/fluent-systems-regular -->
-			<button id=btn_nouveau class=icone><img src=static/nouveau.png width=24></button>
-			<button id=btn_ouvrir class=icone><img src=static/ouvrir.png width=24></button>
-			<button id=btn_enregistrer class=icone><img src=static/enregistrer.png width=24></button>
-			<button id=btn_enregistrer_sous class=icone><img src=static/enregistrer_sous.png width=24></button>
-			<button id=btn_executer class=icone disabled><img src=static/executer.png width=24></button>
-		</div>
+		<fieldset id=fld_barre_outils disabled>
+			<div style="
+				padding: 1px 4px;
+				flex: none;
+				display: flex;
+				flex-flow: row wrap;
+				align-items: center;
+				justify-content: start">
+				<span id=lbl_nom_prenom></span>
+				<span id=lbl_nom_fichier>Sans titre.txt</span>
+				<span id=lbl_indicateur_modifie style="visibility: hidden">*</span>
+				<!-- icones : https://icons8.com/icon/pack/editing/fluent-systems-regular -->
+				<button id=btn_nouveau class=icone><img src=static/nouveau.png width=24></button>
+				<button id=btn_ouvrir class=icone><img src=static/ouvrir.png width=24></button>
+				<button id=btn_enregistrer class=icone><img src=static/enregistrer.png width=24></button>
+				<button id=btn_enregistrer_sous class=icone><img src=static/enregistrer_sous.png width=24></button>
+				<button id=btn_executer class=icone disabled><img src=static/executer.png width=24></button>
+			</div>
+		</fieldset>
 		<div id=txt_editeur style="
 			flex: auto;
 			border: 1px solid lightgray"></div>
