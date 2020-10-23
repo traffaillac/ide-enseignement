@@ -73,7 +73,7 @@ if (identifiant === '') {
 	identifiant = prompt('Veuillez renseigner votre identifiant pour accéder à ce salon') || ''
 	document.cookie = `identifiant=${identifiant}`
 }
-ajax.open('GET', `?tache=initialisation`, false)
+ajax.open('GET', `?action=connexion`, false)
 ajax.send()
 if (ajax.status === 200) {
 	const data = JSON.parse(ajax.responseText)
@@ -108,16 +108,44 @@ onkeydown = (e) => {
 
 
 
-// initialisation des fonctions et callbacks
-async function envoi_code() {
-	protocole.filename = ref_fichier.name
-	protocole.timestamp = Date.now()
-	protocole.code = ace_editeur.getValue()
-	ajax.open('POST', 'protocole', false)
-	ajax.setRequestHeader('Content-Type', 'application/json')
-	ajax.send(JSON.stringify(protocole))
+// fonctions de communication avec le serveur
+function connexion() {
+	const ajax = new XMLHttpRequest()
+	ajax.onreadystatechange = () => {
+		if (ajax.readyState === 4 && ajax.status === 200) {
+			const data = JSON.parse(ajax.responseText)
+			lbl_nom_prenom.innerText = data.nom_prenom
+		}
+	}
+	ajax.open('POST', '?action=connexion')
+	ajax.send()
 }
 
+function deconnexion() {
+	const ajax = new XMLHttpRequest()
+	ajax.open('POST', '?action=deconnexion')
+	ajax.send()
+}
+
+function envoi_code() {
+	const ajax = new XMLHttpRequest()
+	ajax.open('POST', '?action=envoi_code')
+	ajax.setRequestHeader('Content-Type', 'application/json')
+	ajax.send(JSON.stringify({
+		code: ace_editeur.getValue(),
+		console: txt_console.innerText
+	}))
+}
+
+function demande_revue() {
+	const ajax = new XMLHttpRequest()
+	ajax.open('POST', '?action=demande_revue')
+	ajax.send()
+}
+
+
+
+// définition des callbacks
 btn_nouveau.onclick = async () => {
 	ref_fichier = await showSaveFilePicker()
 	let file_name = ref_fichier.name

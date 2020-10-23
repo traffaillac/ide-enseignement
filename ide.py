@@ -1,4 +1,5 @@
 from flask import Flask, abort, jsonify, render_template, request, send_file
+from time import clock_gettime_ns
 
 app = Flask(__name__)
 
@@ -15,13 +16,14 @@ salons = [
     'apprenants': {
       'traffail': {
         'nom_prenom': 'Thibault Raffaillac',
+        'statut': 'absent',
         'code': 'print("Hello world!")',
         'console': 'Hello world!',
-        'activite': {
-          1602673199889: {'action': 'enregistrement'},
-        },
         'avancement': [1602673199889],
         'memo_enseignant': 'Test de mémo 🙂',
+        'activite': {
+          1602673199889: {'action': 'envoi_code'},
+        },
       },
     },
     'tests': [],
@@ -33,18 +35,49 @@ salons = [
 def page_apprenant(salon):
     if not request.args:
         return send_file('ide.html')
+    
+    # vérification de la valididé de l'identifiant
     try:
         identifiant = request.cookies['identifiant']
         apprenant = salon['apprenants'][identifiant]
     except: abort(401)
-    tache = request.args['tache']
-    if tache == 'initialisation':
+    
+    # lecture de l'action et traitements communs
+    action = request.args['action']
+    if action not in ('connexion', 'deconnexion', 'envoi_code', 'demande_revue'):
+        abort(401)
+    activite = {'action': action}
+    apprenant['activite'][clock_gettime_ns() // 1_000_000] = activite
+    
+    # traitements spécifiques à chaque action
+    if action == 'connexion':
+        apprenant['statut'] = 'present'
         json = {k: apprenant[k] for k in ('nom_prenom')}
         return jsonify(json)
+    elif action == 'deconnexion':
+        apprenant['statut'] = 'absent'
+    elif action == 'envoi_code':
+        code = request.json['code'][:100_000] # protection contre les contenus massifs
+        console = request.json['console'][-100_000:]
+        apprenant['code'] = code
+        apprenant['console'] = console
+    elif action == 'demande_revue':
+        apprenant['statut'] = 'main_levee'
 
 
 
-@app.route('/<adresse>')
+def page_enseignant(salon):
+    if not request.args:
+        return send_file('mosaique.html')
+    
+    # lecture de l'action et traitements spécifiques
+    action = request.args['action']
+    if action == 'liste_apprenants':
+        return jsonify(salon['apprenants'])
+
+
+
+@app.route('/<adresse>', methods=('GET', 'POST'))
 def repartiteur(adresse):
     try: acces = acces_ouverts[adresse]
     except: abort(404)

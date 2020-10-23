@@ -16,13 +16,13 @@ Les données de premier rang sont des variables globales du serveur. Lors de son
 * __salons__ - liste des informations sur chaque salon
 	* __apprenants__ - dictionnaire indexé par l'identifiant de chaque apprenant
 		* __nom_prenom__ - chaîne telle qu'affichée dans la mosaïque
+		* __statut__ - `absent`, `present`, `main_levee`
 		* __code__ - texte contenant le dernier programme obtenu
 		* __console__ - texte affiché dans la console de l'apprenant (à passer dans un sanitizer côté client mosaïque)
-		* __activite__ - dictionnaire d'évènements indexée par timestamp
-			* __action__ - `connexion`, `deconnexion`, `enregistrement`, `demande_revue`, `revue_enseignant`, `commit`
-			* __description__ - texte de description si commit
 		* __avancement__ - liste des timestamps des évènements où ont été passés chaque niveau de test, indexée par les numéros des tests
 		* __memo_enseignant__ - texte conservant les notes de l'enseignant pour chaque apprenant
+		* __activite__ - dictionnaire d'évènements indexée par timestamp
+			* __action__ - `connexion`, `deconnexion`, `envoi_code`, `demande_revue`, `revue_enseignant`
 	* __tests__ - liste des scripts de tests permettant de mesurer l'avancement de chaque apprenant
 		* __code__ - texte contenant le script du test
 
@@ -38,6 +38,7 @@ Tâches à gérer :
 Tâches à gérer :
 
 * fournir ou modifier la liste des identifiants apprenants et les informations associées
+* réinitialiser les présences des étudiants
 * afficher une mosaïque des apprenants et un panel d'actions sur les vignettes
 * lire le code d'un étudiant, l'exécuter et éventuellement augmenter son avancement dans les tests
 * examiner la progression dans le temps de chaque apprenant
