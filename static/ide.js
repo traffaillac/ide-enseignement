@@ -39,7 +39,8 @@ function demande_revue() {
 
 // variables globales à l'application
 let ref_fichier = null
-let ignorer_prochaine_modification = false
+let ignorer_change = false
+let version_fichier = 0
 let envoi_automatique = true
 
 
@@ -59,15 +60,13 @@ onpagehide = deconnexion
 ace.config.set('basePath', 'https://pagecdn.io/lib/ace/1.4.12/')
 const ace_editeur = ace.edit('txt_editeur', {
 	mode: 'ace/mode/python',
-	readOnly: true,
+	//readOnly: true,
 	tabSize: JSON.parse(localStorage.getItem('ace_tabSize') || '4'),
 	theme: localStorage.getItem('ace_theme') || 'ace/theme/xcode',
 	useSoftTabs: JSON.parse(localStorage.getItem('ace_useSoftTabs') || 'true'),
 })
-ace_editeur.session.on('change', () => {
-	if (ignorer_prochaine_modification) {
-		ignorer_prochaine_modification = false
-	} else {
+ace_editeur.session.on('change', (delta) => {
+	if (!ignorer_change) {
 		lbl_indicateur_modifie.style.visibility = 'visible'
 	}
 })
@@ -106,13 +105,20 @@ selection_onglet(
 
 // initialisation de l'interpréteur Python dans un thread distinct
 txt_console.value += "Chargement de l'interpréteur Python..."
-const pyodide_worker = new Worker('./static/webworker.js')
-pyodide_worker.onerror = (e) => {
-	console.log(`Error in pyodide_worker at ${e.filename}, line ${e.lineno}: ${e.message}`)
-}
-pyodide_worker.onmessage = (e) => {
-	btn_executer.disabled = false
-	txt_console.value += e.data
+try {
+	const pyodide_worker = new Worker('./static/webworker.js')
+	pyodide_worker.onerror = (e) => {
+		console.log(`Error in pyodide_worker at ${e.filename}, line ${e.lineno}: ${e.message}`)
+	}
+	pyodide_worker.onmessage = (e) => {
+		btn_executer.disabled = false
+		txt_console.value += e.data
+	}
+	btn_executer.onclick = async () => {
+		pyodide_worker.postMessage(ace_editeur.getValue())
+	}
+} catch (e) {
+	txt_console.value += ` erreur (recharger la page)\n${e}\n`
 }
 
 
@@ -141,54 +147,76 @@ onkeydown = (e) => {
 
 
 
-// définition des callbacks
+// commandes d'association du code à un fichier
 btn_nouveau.onclick = async () => {
+	if (envoi_automatique)
+		envoi_code()
 	ref_fichier = await showSaveFilePicker()
-	let file_name = ref_fichier.name
-	lbl_nom_fichier.textContent = file_name
-	ace_editeur.session.setMode(ace_modelist.getModeForPath(file_name).mode)
+	lbl_nom_fichier.textContent = ref_fichier.name
+	version_fichier = (await ref_fichier.getFile()).lastModified
 	lbl_indicateur_modifie.style.visibility = 'hidden'
-	ignorer_prochaine_modification = true
+	ignorer_change = true
 	ace_editeur.session.setValue('')
+	ignorer_change = false
 }
 
 btn_ouvrir.onclick = async () => {
+	if (envoi_automatique)
+		envoi_code()
 	ref_fichier = (await showOpenFilePicker())[0]
-	let file_name = ref_fichier.name
-	lbl_nom_fichier.textContent = file_name
-	ace_editeur.session.setMode(ace_modelist.getModeForPath(file_name).mode)
+	lbl_nom_fichier.textContent = ref_fichier.name
 	const file = await ref_fichier.getFile()
+	version_fichier = file.lastModified
 	lbl_indicateur_modifie.style.visibility = 'hidden'
-	ignorer_prochaine_modification = true
+	ignorer_change = true
 	ace_editeur.setValue(await file.text())
-	envoi_code()
+	ignorer_change = false
 }
 
 btn_enregistrer.onclick = async () => {
+	if (envoi_automatique)
+		envoi_code()
 	if (ref_fichier === null) {
 		ref_fichier = await showSaveFilePicker()
-		let file_name = ref_fichier.name
-		lbl_nom_fichier.textContent = file_name
-		ace_editeur.session.setMode(ace_modelist.getModeForPath(file_name).mode)
+		lbl_nom_fichier.textContent = ref_fichier.name
 	}
-	const writable = await ref_fichier.createWritable()
+	const writable = await ref_fichier.createWritable() // demande éventuellement les droits d'écriture
 	await writable.write(ace_editeur.getValue())
 	await writable.close()
+	version_fichier = (await ref_fichier.getFile()).lastModified
 	lbl_indicateur_modifie.style.visibility = 'hidden'
-	envoi_code()
 }
 
 btn_enregistrer_sous.onclick = async () => {
+	if (envoi_automatique)
+		envoi_code()
 	ref_fichier = await showSaveFilePicker()
-	let file_name = ref_fichier.name
-	lbl_nom_fichier.textContent = file_name
-	ace_editeur.session.setMode(ace_modelist.getModeForPath(file_name).mode)
+	lbl_nom_fichier.textContent = ref_fichier.name
 	const writable = await ref_fichier.createWritable()
 	await writable.write(ace_editeur.getValue())
 	await writable.close()
+	version_fichier = (await ref_fichier.getFile()).lastModified
 	lbl_indicateur_modifie.style.visibility = 'hidden'
 }
 
-btn_executer.onclick = async () => {
-	pyodide_worker.postMessage(ace_editeur.getValue())
+onbeforeunload = (e) => {
+	if (lbl_indicateur_modifie.style.visibility === 'visible')
+		e.preventDefault()
+}
+
+onfocus = async () => {
+	if (ref_fichier !== null) {
+		const file = await ref_fichier.getFile()
+		if (file.lastModified > version_fichier) {
+			if (lbl_indicateur_modifie.style.visibility === 'hidden') {
+				ignorer_change = true
+				ace_editeur.setValue(await file.text())
+				ignorer_change = false
+			} else {
+				alert("Le fichier a été modifié en dehors de l'application, pensez à enregistrer les modifications faites ici !")
+				lbl_nom_fichier.innerText = '<aucun fichier lié>'
+				ref_fichier = null
+			}
+		}
+	}
 }
