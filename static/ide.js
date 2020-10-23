@@ -201,7 +201,7 @@ btn_enregistrer_sous.onclick = async () => {
 
 onbeforeunload = (e) => {
 	if (lbl_indicateur_modifie.style.visibility === 'visible')
-		e.preventDefault()
+		return e.returnValue = "L'éditeur contient des modifications non sauvegardées, elles seront perdues si la fenêtre est fermée."
 }
 
 onfocus = async () => {
