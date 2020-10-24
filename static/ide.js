@@ -41,7 +41,6 @@ function demande_revue() {
 let ref_fichier = null
 let ignorer_change = false
 let version_fichier = 0
-let envoi_automatique = true
 
 
 
@@ -61,9 +60,10 @@ ace.config.set('basePath', 'https://pagecdn.io/lib/ace/1.4.12/')
 const ace_editeur = ace.edit('txt_editeur', {
 	mode: 'ace/mode/python',
 	//readOnly: true,
-	tabSize: JSON.parse(localStorage.getItem('ace_tabSize') || '4'),
-	theme: localStorage.getItem('ace_theme') || 'ace/theme/xcode',
-	useSoftTabs: JSON.parse(localStorage.getItem('ace_useSoftTabs') || 'true'),
+	showInvisibles: JSON.parse(localStorage.getItem('inp_showInvisibles') || 'false'),
+	tabSize: JSON.parse(localStorage.getItem('inp_tabSize') || '4'),
+	theme: `ace/theme/${localStorage.getItem('inp_theme') || 'xcode'}`,
+	useSoftTabs: JSON.parse(localStorage.getItem('inp_useSoftTabs') || 'true'),
 })
 ace_editeur.session.on('change', (delta) => {
 	if (!ignorer_change) {
@@ -88,14 +88,16 @@ Split(['#panneau_gauche', '#panneau_droite'], {
 // gestion des onglets du panneau de droite
 function selection_onglet(onglet, volet) {
 	spn_console.classList.remove('onglet_actif')
-	spn_chat.classList.remove('onglet_actif')
+	spn_parametres.classList.remove('onglet_actif')
 	onglet.classList.add('onglet_actif')
 	txt_console.style.display = 'none'
-	div_chat.style.display = 'none'
+	div_parametres.style.display = 'none'
 	volet.style.display = null
 	localStorage.setItem('onglet_actif', onglet.id)
 	localStorage.setItem('volet_actif', volet.id)
 }
+spn_console.onclick = () => selection_onglet(spn_console, txt_console)
+spn_parametres.onclick = () => selection_onglet(spn_parametres, div_parametres)
 selection_onglet(
 	document.getElementById(localStorage.getItem('onglet_actif') || 'spn_console'),
 	document.getElementById(localStorage.getItem('volet_actif') || 'txt_console')
@@ -119,6 +121,32 @@ try {
 	}
 } catch (e) {
 	txt_console.value += ` erreur (recharger la page)\n${e}\n`
+}
+
+
+
+// gestion des paramètres de l'application
+inp_envoi_auto.checked = JSON.parse(localStorage.getItem('inp_envoi_auto') || 'true')
+inp_envoi_auto.onchange = () => localStorage.setItem('inp_envoi_auto', JSON.stringify(inp_envoi_auto.checked))
+inp_theme.value = localStorage.getItem('inp_theme') || 'xcode'
+inp_theme.onchange = () => {
+	ace_editeur.setTheme(`ace/theme/${inp_theme.value}`)
+	localStorage.setItem('inp_theme', inp_theme.value)
+}
+inp_useSoftTabs.checked = JSON.parse(localStorage.getItem('inp_useSoftTabs') || 'true')
+inp_useSoftTabs.onchange = () => {
+	ace_editeur.session.setUseSoftTabs(inp_useSoftTabs.checked)
+	localStorage.setItem('inp_useSoftTabs', JSON.stringify(inp_useSoftTabs.checked))
+}
+inp_showInvisibles.checked = JSON.parse(localStorage.getItem('inp_showInvisibles') || 'false')
+inp_showInvisibles.onchange = () => {
+	ace_editeur.setShowInvisibles(inp_showInvisibles.checked)
+	localStorage.setItem('inp_showInvisibles', JSON.stringify(inp_showInvisibles.checked))
+}
+inp_tabSize.value = localStorage.getItem('inp_tabSize') || '4'
+inp_tabSize.onchange = () => {
+	ace_editeur.session.setTabSize(inp_tabSize.value)
+	localStorage.setItem('inp_tabSize', inp_tabSize.value)
 }
 
 
@@ -149,7 +177,7 @@ onkeydown = (e) => {
 
 // commandes d'association du code à un fichier
 btn_nouveau.onclick = async () => {
-	if (envoi_automatique)
+	if (inp_envoi_auto.checked)
 		envoi_code()
 	ref_fichier = await showSaveFilePicker()
 	lbl_nom_fichier.textContent = ref_fichier.name
@@ -161,7 +189,7 @@ btn_nouveau.onclick = async () => {
 }
 
 btn_ouvrir.onclick = async () => {
-	if (envoi_automatique)
+	if (inp_envoi_auto.checked)
 		envoi_code()
 	ref_fichier = (await showOpenFilePicker())[0]
 	lbl_nom_fichier.textContent = ref_fichier.name
@@ -174,7 +202,7 @@ btn_ouvrir.onclick = async () => {
 }
 
 btn_enregistrer.onclick = async () => {
-	if (envoi_automatique)
+	if (inp_envoi_auto.checked)
 		envoi_code()
 	if (ref_fichier === null) {
 		ref_fichier = await showSaveFilePicker()
@@ -188,7 +216,7 @@ btn_enregistrer.onclick = async () => {
 }
 
 btn_enregistrer_sous.onclick = async () => {
-	if (envoi_automatique)
+	if (inp_envoi_auto.checked)
 		envoi_code()
 	ref_fichier = await showSaveFilePicker()
 	lbl_nom_fichier.textContent = ref_fichier.name
@@ -209,6 +237,8 @@ onfocus = async () => {
 		const file = await ref_fichier.getFile()
 		if (file.lastModified > version_fichier) {
 			if (lbl_indicateur_modifie.style.visibility === 'hidden') {
+				if (inp_envoi_auto.checked)
+					envoi_code()
 				ignorer_change = true
 				ace_editeur.setValue(await file.text())
 				ignorer_change = false

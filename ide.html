@@ -3,18 +3,41 @@
 <head>
 	<meta charset="utf8"/><!-- bug Chromium : guillemets obligatoires ici -->
 	<title>IDE en ligne</title>
-	<link rel=stylesheet href=https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap-reboot.min.css>
 	<style>
+		/* reset CSS (les libs CSS sont généralement orientées blogs) */
+		html, body, div, span, applet, object, iframe,
+		h1, h2, h3, h4, h5, h6, p, blockquote, pre,
+		a, abbr, acronym, address, big, cite, code,
+		del, dfn, em, img, ins, kbd, q, s, samp,
+		small, strike, strong, sub, sup, tt, var,
+		b, u, i, center,
+		dl, dt, dd, ol, ul, li,
+		fieldset, form, label, legend,
+		table, caption, tbody, tfoot, thead, tr, th, td,
+		article, aside, canvas, details, embed, 
+		figure, figcaption, footer, header, hgroup, 
+		menu, nav, output, ruby, section, summary,
+		time, mark, audio, video, button {
+			margin: 0;
+			padding: 0;
+			border: 0;
+			font-size: 100%;
+			font: inherit;
+			vertical-align: baseline;
+		}
+		
 		/* Split.js interdit de fixer ce CSS autrement que par classe */
 		.gutter-horizontal { cursor: ew-resize }
 		
 		/* styles spécifiques à la barre d'outils */
 		.icone {
 			flex: none;
+			border: 0;
 			background-color: none;
-			border: none;
+			background-size: cover;
 			margin-left: 1px;
-			padding: 0;
+			width: 24px;
+			height: 24px;
 		}
 		.icone:disabled { opacity: 0.5 }
 		.icone:hover:enabled { background-color: lightgray }
@@ -57,11 +80,11 @@
 				<span id=lbl_nom_fichier>&lt;aucun fichier lié&gt;</span>
 				<span id=lbl_indicateur_modifie style="visibility: hidden">*</span>
 				<!-- icones : https://icons8.com/icon/pack/editing/fluent-systems-regular -->
-				<button id=btn_nouveau class=icone><img src=static/nouveau.png width=24></button>
-				<button id=btn_ouvrir class=icone><img src=static/ouvrir.png width=24></button>
-				<button id=btn_enregistrer class=icone><img src=static/enregistrer.png width=24></button>
-				<button id=btn_enregistrer_sous class=icone><img src=static/enregistrer_sous.png width=24></button>
-				<button id=btn_executer class=icone disabled><img src=static/executer.png width=24></button>
+				<input id=btn_nouveau class=icone type=button style="background-image:url('static/nouveau.png')">
+				<input id=btn_ouvrir class=icone type=button style="background-image:url('static/ouvrir.png')">
+				<input id=btn_enregistrer class=icone type=button style="background-image:url('static/enregistrer.png')">
+				<input id=btn_enregistrer_sous class=icone type=button style="background-image:url('static/enregistrer_sous.png')">
+				<input id=btn_executer class=icone type=button style="background-image:url('static/executer.png')">
 			</div>
 		</fieldset>
 		<div id=txt_editeur style="
@@ -79,19 +102,100 @@
 			flex-flow: row nowrap;
 			align-items: end;
 			justify-content: start">
-			<span id=spn_console class=onglet onclick="selection_onglet(this, txt_console)">Console</span>
-			<span id=spn_chat class=onglet onclick="selection_onglet(this, div_chat)">Messages</span>
+			<span id=spn_console class=onglet>Console</span>
+			<span id=spn_parametres class=onglet>Paramètres</span>
 		</div>
 		<textarea id=txt_console readonly style="
 			flex: auto;
 			border: 1px solid lightgray;
 			font-family: monospace;
 			resize: none"></textarea>
-		<div id=div_chat style="
+		<div id=div_parametres style="
 			flex: auto;
 			background-color: white;
 			border: 1px solid lightgray">
-			Chat !
+			<div style="
+				display: flex;
+				align-items: center">
+				<input id=inp_envoi_auto type=checkbox>
+				<label for=inp_envoi_auto>partager automatiquement lors de l'ouverture ou l'enregistrement d'un fichier</label>
+			</div>
+			<hr>
+			<div style="
+				display: flex;
+				align-items: center">
+				<label for=inp_theme>Thème de l'éditeur :</label>
+				<select id=inp_theme>
+					<optgroup label=Clairs>
+						<option value=chrome>Chrome</option>
+						<option value=clouds>Clouds</option>
+						<option value=crimson_editor>Crimson Editor</option>
+						<option value=dawn>Dawn</option>
+						<option value=dreamweaver>Dreamweaver</option>
+						<option value=eclipse>Eclipse</option>
+						<option value=github>GitHub</option>
+						<option value=iplastic>iPlastic</option>
+						<option value=katzenmilch>Katzenmilch</option>
+						<option value=kuroir>Kuroir</option>
+						<option value=solarized_light>Solarized Light</option>
+						<option value=sqlserver>SQL Server</option>
+						<option value=textmate>TextMate</option>
+						<option value=tomorrow>Tomorrow</option>
+						<option value=xcode>Xcode</option>
+					</optgroup>
+					<optgroup label=Sombres>
+						<option value=ambiance>Ambiance</option>
+						<option value=chaos>Chaos</option>
+						<option value=clouds_midnight>Clouds Midnight</option>
+						<option value=cobalt>Cobalt</option>
+						<option value=dracula>Dracula</option>
+						<option value=gob>Green On Black</option>
+						<option value=gruvbox>Gruvbox</option>
+						<option value=idle_fingers>Idle Fingers</option>
+						<option value=kr_theme>Kr Theme</option>
+						<option value=merbivore>Merbivore</option>
+						<option value=merbivore_soft>Merbivore Soft</option>
+						<option value=mono_industrial>Mono Industrial</option>
+						<option value=monokai>Monokai</option>
+						<option value=nord_dark>Nord Dark</option>
+						<option value=pastel_on_dark>Pastel On dark</option>
+						<option value=solarized_dark>Solarized Dark</option>
+						<option value=terminal>Terminal</option>
+						<option value=tomorrow_night>Tomorrow Night</option>
+						<option value=tomorrow_night_blue>Tomorrow Night Blue</option>
+						<option value=tomorrow_night_bright>Tomorrow Night Bright</option>
+						<option value=tomorrow_night_eighties>Tomorrow Night Eighties</option>
+						<option value=twilight>Twilight</option>
+						<option value=vibrant_ink>Vibrant Ink</option>
+					</optgroup>
+				</select>
+			</div>
+			<div style="
+				display: flex;
+				align-items: center">
+				<input id=inp_useSoftTabs type=checkbox>
+				<label for=inp_useSoftTabs>indenter avec des espaces plutôt que des caractères tabulation</label>
+			</div>
+			<div style="
+				display: flex;
+				align-items: center">
+				<input id=inp_showInvisibles type=checkbox>
+				<label for=inp_showInvisibles>afficher les espaces et caractères invisibles</label>
+			</div>
+			<div style="
+				display: flex;
+				align-items: center">
+				<label for=inp_tabSize>Taille d'une indentation :</label>
+				<select id=inp_tabSize>
+					<option value=2>2 espaces</option>
+					<option value=3>3 espaces</option>
+					<option value=4>4 espaces</option>
+					<option value=5>5 espaces</option>
+					<option value=6>6 espaces</option>
+					<option value=7>7 espaces</option>
+					<option value=8>8 espaces</option>
+				</select>
+			</div>
 		</div>
 	</div>
 	<script src=https://pagecdn.io/lib/ace/1.4.12/ace.min.js></script>
