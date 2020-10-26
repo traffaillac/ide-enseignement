@@ -28,6 +28,21 @@
 			vertical-align: baseline;
 		}
 		
+		/* styles spécifiques à chaque tag */
+		hr {
+			margin: 12px;
+			border: 0;
+			height: 2px;
+			background-color: lightgray;
+		}
+		input[type=checkbox] { margin: 0 6px }
+		select {
+			margin: 0 6px;
+			border: 1px solid grey;
+			border-radius: 4px;
+			padding: 2px;
+		}
+		
 		/* Split.js interdit de fixer ce CSS autrement que par classe */
 		.gutter-horizontal { cursor: ew-resize }
 		
@@ -35,29 +50,35 @@
 		.icone {
 			flex: none;
 			border: 0;
+			border-radius: 4px;
 			background-color: white;
-			background-size: cover;
-			margin-left: 1px;
-			width: 24px;
-			height: 24px;
+			background-position: center;
+			background-repeat: no-repeat;
+			background-size: 24px 24px;
+			margin-left: 2px;
+			width: 28px;
+			height: 28px;
 		}
 		.icone:disabled { opacity: 0.5 }
-		.icone:hover:enabled { background-color: lightgray }
+		.icone:hover:enabled { background-color: #e4e4e4 }
 		
 		/* gestion des onglets du panneau de droite */
 		.onglet {
 			display: inline-flex;
 			align-items: center;
+			border-radius: 6px 6px 0 0;
+			border-bottom: 0;
 			cursor: pointer;
-			padding: 1px 8px;
-			transition: 0.3s;
+			padding: 8px 8px;
+			margin-left: 4px;
+			transition: 0.2s;
 		}
-		.onglet:hover {
-			background-color: #e4e4e4;
-		}
+		.onglet:hover { background-color: #e4e4e4 }
 		.onglet_actif {
-			background-color: lightgray;
+			background-color: lightblue;
+			box-shadow: 0 0 8px lightgray;
 		}
+		.onglet_actif:hover { background-color: lightblue }
 	</style>
 </head>
 <body style="
@@ -83,10 +104,11 @@
 				align-items: center;
 				justify-content: flex-start">
 				<span id=lbl_nom_fichier style="
-					background-color: aliceblue;
+					background-color: lightblue;
 					border-radius: 6px;
 					padding: 6px">&lt;aucun fichier lié&gt;</span>
-				<span id=lbl_indicateur_modifie style="visibility: hidden">*</span>
+				<span id=lbl_indicateur_modifie style="
+					visibility: hidden">﹡</span>
 				<!-- icones : https://icons8.com/icon/pack/editing/fluent-systems-regular -->
 				<input id=btn_nouveau class=icone type=button style="background-image:url('static/nouveau.png')">
 				<input id=btn_ouvrir class=icone type=button style="background-image:url('static/ouvrir.png')">
@@ -109,11 +131,14 @@
 			height: 40px;
 			display: flex;
 			flex-flow: row nowrap;
-			align-items: stretch;
+			align-items: flex-end;
 			justify-content: flex-start">
 			<span id=spn_console class=onglet>Console</span>
 			<span id=spn_parametres class=onglet>Paramètres</span>
-			<span id=lbl_nom_prenom style="margin-left: auto; align-self: center"></span>
+			<span id=lbl_nom_prenom style="
+				margin-left: auto;
+				margin-right: 8px;
+				align-self: center"></span>
 		</div>
 		<textarea id=txt_console readonly style="
 			flex: auto;
@@ -123,7 +148,9 @@
 		<div id=div_parametres style="
 			flex: auto;
 			background-color: white;
-			border: 1px solid lightgray">
+			border: 1px solid lightgray;
+			line-height: 1.8;
+			padding: 12px">
 			<div style="
 				display: flex;
 				align-items: center">
