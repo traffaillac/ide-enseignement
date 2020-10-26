@@ -1,5 +1,5 @@
 from flask import Flask, abort, jsonify, render_template, request, send_file
-from time import clock_gettime_ns
+from time import time
 
 app = Flask(__name__)
 
@@ -47,12 +47,12 @@ def page_apprenant(salon):
     if action not in ('connexion', 'deconnexion', 'envoi_code', 'demande_revue'):
         abort(401)
     activite = {'action': action}
-    apprenant['activite'][clock_gettime_ns() // 1_000_000] = activite
+    apprenant['activite'][round(time() * 1000)] = activite
     
     # traitements spécifiques à chaque action
     if action == 'connexion':
         apprenant['statut'] = 'present'
-        json = {k: apprenant[k] for k in ('nom_prenom')}
+        json = {k: apprenant[k] for k in ('nom_prenom',)}
         return jsonify(json)
     elif action == 'deconnexion':
         apprenant['statut'] = 'absent'
