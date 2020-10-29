@@ -279,5 +279,6 @@ btn_assistance.onclick = () => {
 		btn_assistance.value = ''
 	} else {
 		btn_assistance.classList.add('demande_assistance')
+		post_serveur('envoi_code')
 	}
 }

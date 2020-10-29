@@ -49,20 +49,25 @@
 		/* styles spécifiques à la barre d'outils */
 		.icone {
 			flex: none;
-			border: 0;
-			border-radius: 4px;
 			background-color: white;
 			background-position: center;
 			background-repeat: no-repeat;
 			background-size: 24px 24px;
+			border: 0;
+			border-radius: 4px;
+			cursor: pointer;
 			margin-left: 2px;
 			width: 28px;
 			height: 28px;
 		}
 		.icone:disabled { opacity: 0.5 }
-		.icone:hover:enabled:not(.demande_assistance,.attente_assistance) { background-color: #e4e4e4 }
+		.icone:hover:enabled:not(.attente_assistance) { background-color: #e4e4e4 }
 		.demande_assistance { background-color: gold }
-		.attente_assistance { background-color: gold; background-size: 0 }
+		.attente_assistance {
+			background-color: gold;
+			background-size: 0;
+			font: bold 15px Raleway;
+		}
 		
 		/* gestion des onglets du panneau de droite */
 		.onglet {
