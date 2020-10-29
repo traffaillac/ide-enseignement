@@ -1,7 +1,7 @@
 <!doctype html>
 <html lang=fr>
 <head>
-	<meta charset="utf8"/><!-- bug Chromium : guillemets obligatoires ici -->
+	<meta charset=utf8>
 	<title>IDE en ligne</title>
 	<link rel=stylesheet href=https://fonts.googleapis.com/css?family=Raleway>
 	<style>
@@ -39,7 +39,7 @@
 		select {
 			margin: 0 6px;
 			border: 1px solid grey;
-			border-radius: 4px;
+			border-radius: 5px;
 			padding: 2px;
 		}
 		
@@ -65,7 +65,7 @@
 		/* gestion des onglets du panneau de droite */
 		.onglet {
 			display: inline-flex;
-			align-items: center;
+			align-self: flex-end;
 			border-radius: 6px 6px 0 0;
 			border-bottom: 0;
 			cursor: pointer;
@@ -94,7 +94,7 @@
 		display: flex;
 		flex-flow: column nowrap;
 		align-items: stretch">
-		<fieldset id=fld_barre_outils>
+		<fieldset id=fld_barre_outils disabled>
 			<div style="
 				flex: none;
 				padding: 0 6px;
@@ -114,7 +114,8 @@
 				<input id=btn_ouvrir class=icone type=button style="background-image:url('static/ouvrir.png')">
 				<input id=btn_enregistrer class=icone type=button style="background-image:url('static/enregistrer.png')">
 				<input id=btn_enregistrer_sous class=icone type=button style="background-image:url('static/enregistrer_sous.png')">
-				<input id=btn_executer class=icone type=button style="background-image:url('static/executer.png')">
+				<input id=btn_executer class=icone type=button style="background-image:url('static/executer.png')" disabled>
+				<input id=btn_assistance class=icone type=button style="background-image: url('static/assistance.png')">
 			</div>
 		</fieldset>
 		<div id=txt_editeur style="
@@ -131,14 +132,15 @@
 			height: 40px;
 			display: flex;
 			flex-flow: row nowrap;
-			align-items: flex-end;
+			align-items: center;
 			justify-content: flex-start">
 			<span id=spn_console class=onglet>Console</span>
 			<span id=spn_parametres class=onglet>Paramètres</span>
-			<span id=lbl_nom_prenom style="
+			<span id=lbl_nom_salon style="
 				margin-left: auto;
-				margin-right: 8px;
-				align-self: center"></span>
+				margin-right: 8px">Groupe A1a</span> -
+			<span id=lbl_nom_apprenant style="
+				margin: 0 8px">Thibault Raffaillac</span>
 		</div>
 		<textarea id=txt_console readonly style="
 			flex: auto;

@@ -1,10 +1,33 @@
 <!doctype html>
 <html lang=fr>
 <head>
-	<meta charset=utf8/>
-	<title>Vue des apprenants</title>
-	<link rel=stylesheet href=https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css integrity=sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T crossorigin=anonymous>
+	<meta charset=utf8>
+	<title>Vue enseignant</title>
+	<link rel=stylesheet href=https://fonts.googleapis.com/css?family=Raleway>
 	<style>
+		/* reset CSS (les libs CSS sont généralement orientées blogs) */
+		html, body, div, span, applet, object, iframe,
+		h1, h2, h3, h4, h5, h6, p, blockquote, pre,
+		a, abbr, acronym, address, big, cite, code,
+		del, dfn, em, img, ins, kbd, q, s, samp,
+		small, strike, strong, sub, sup, tt, var,
+		b, u, i, center,
+		dl, dt, dd, ol, ul, li,
+		fieldset, form, label, legend,
+		table, caption, tbody, tfoot, thead, tr, th, td,
+		article, aside, canvas, details, embed, 
+		figure, figcaption, footer, header, hgroup, 
+		menu, nav, output, ruby, section, summary,
+		time, mark, audio, video, button {
+			box-sizing: border-box;
+			margin: 0;
+			padding: 0;
+			border: 0;
+			font-size: 100%;
+			font: inherit;
+			vertical-align: baseline;
+		}
+		
 		.vue {
 			align-items: center;
 			background-color: dodgerblue;
@@ -14,7 +37,8 @@
 		}
 	</style>
 </head>
-<body>
+<body style="
+	font: 15px Raleway">
 	<div id=mosaique style="
 		display: grid;
 		gap: 3px;
@@ -42,6 +66,5 @@
 	</div>
 	
 	<script src=https://pagecdn.io/lib/ace/1.4.12/ace.min.js></script>
-	<script src=https://pagecdn.io/lib/ace/1.4.12/ext-modelist.min.js></script>
-	<script src=mosaique.js></script>
+	<script src=static/mosaique.js></script>
 </body>

@@ -1,38 +1,36 @@
 // fonctions de communication avec le serveur
-function connexion() {
+function post_serveur(action=null) {
+	const envoi = {demande_assistance: btn_assistance.classList.contains('demande_assistance')}
+	if (action === 'envoi_code') {
+		envoi.code = ace_editeur.getValue()
+		envoi.console = txt_console.innerText
+	} else if (action === 'sortie') {
+		envoi.sortie = true
+	}
+	
 	const ajax = new XMLHttpRequest()
+	ajax.timeout = 2000 // durée minimale entre deux requêtes, pour ne pas les mélanger
 	ajax.onreadystatechange = () => {
-		if (ajax.readyState === 4 && ajax.status === 200) {
-			const data = JSON.parse(ajax.responseText)
+		if (ajax.readyStage === 4 && ajax.status === 200) {
 			fld_barre_outils.disabled = false
-			lbl_nom_prenom.innerText = data.nom_prenom
 			ace_editeur.setReadOnly(false)
+			const recu = JSON.parse(ajax.responseText)
+			if ('nom_salon' in recu)
+				lbl_nom_salon.innerText = recu.nom_salon
+			if ('position_assistance' in recu) {
+				btn_assistance.value = recu.position_assistance
+				if (btn_assistance.classList.contains('demande_assistance')) {
+					btn_assistance.classList.remove('demande_assistance')
+					btn_assistance.classList.add('attente_assistance')
+				}
+			} else if (btn_assistance.classList.contains('attente_assistance')) {
+				btn_assistance.classList.remove('attente_assistance')
+				btn_assistance.value = ''
+			}
 		}
 	}
-	ajax.open('POST', '?action=connexion')
-	ajax.send()
-}
-
-function deconnexion() {
-	const ajax = new XMLHttpRequest()
-	ajax.open('POST', '?action=deconnexion')
-	ajax.send()
-}
-
-function envoi_code() {
-	const ajax = new XMLHttpRequest()
-	ajax.open('POST', '?action=envoi_code')
-	ajax.setRequestHeader('Content-Type', 'application/json')
-	ajax.send(JSON.stringify({
-		code: ace_editeur.getValue(),
-		console: txt_console.innerText
-	}))
-}
-
-function demande_revue() {
-	const ajax = new XMLHttpRequest()
-	ajax.open('POST', '?action=demande_revue')
-	ajax.send()
+	ajax.open('POST', '')
+	ajax.send(JSON.stringify(envoi))
 }
 
 
@@ -44,22 +42,11 @@ let version_fichier = 0
 
 
 
-// obtention de l'identifiant de l'apprenant et téléchargement des données
-let identifiant = (document.cookie.split('; ').find(kv => kv.startsWith('identifiant=')) || 'identifiant=').slice('identifiant='.length)
-if (identifiant === '') {
-	identifiant = prompt('Veuillez renseigner votre identifiant pour accéder à ce salon') || ''
-	document.cookie = `identifiant=${identifiant}`
-}
-onpageshow = connexion
-onpagehide = deconnexion
-
-
-
 // initialisation de l'éditeur de texte
 ace.config.set('basePath', 'https://pagecdn.io/lib/ace/1.4.12/')
 const ace_editeur = ace.edit('txt_editeur', {
 	mode: 'ace/mode/python',
-	//readOnly: true,
+	readOnly: true,
 	showInvisibles: JSON.parse(localStorage.getItem('inp_showInvisibles') || 'false'),
 	tabSize: JSON.parse(localStorage.getItem('inp_tabSize') || '4'),
 	theme: `ace/theme/${localStorage.getItem('inp_theme') || 'xcode'}`,
@@ -125,7 +112,7 @@ try {
 
 
 
-// gestion des paramètres de l'application
+// gestion de l'onglet des paramètres
 inp_envoi_auto.checked = JSON.parse(localStorage.getItem('inp_envoi_auto') || 'true')
 inp_envoi_auto.onchange = () => localStorage.setItem('inp_envoi_auto', JSON.stringify(inp_envoi_auto.checked))
 inp_theme.value = localStorage.getItem('inp_theme') || 'xcode'
@@ -148,6 +135,22 @@ inp_tabSize.onchange = () => {
 	ace_editeur.session.setTabSize(inp_tabSize.value)
 	localStorage.setItem('inp_tabSize', inp_tabSize.value)
 }
+
+
+
+// obtention de l'identifiant de l'apprenant et téléchargement des données
+let identifiant = decodeURIComponent((document.cookie.split('; ').find(kv => kv.startsWith('identifiant=')) || 'identifiant=').slice('identifiant='.length))
+if (identifiant === '') {
+	identifiant = prompt('Veuillez renseigner votre Prénom et Nom pour accéder à ce salon') || ''
+	document.cookie = `identifiant=${encodeURIComponent(identifiant)}`
+	if (identifiant === 'Offline') {
+		fld_barre_outils.disabled = false
+		ace_editeur.setReadOnly(false)
+	}
+}
+lbl_nom_apprenant.innerText = identifiant
+onpageshow = () => post_serveur()
+onpagehide = () => post_serveur(action='sortie')
 
 
 
@@ -177,21 +180,29 @@ onkeydown = (e) => {
 
 // commandes d'association du code à un fichier
 btn_nouveau.onclick = async () => {
-	if (inp_envoi_auto.checked)
-		envoi_code()
-	ref_fichier = await showSaveFilePicker()
+	if (lbl_indicateur_modifie.style.visibility === 'visible' &&
+		!confirm("Les modifications non sauvegardées vont être perdues, voulez-vous continuer ?"))
+		return
+	try {
+		ref_fichier = await showSaveFilePicker()
+	} catch (e) { return }
 	lbl_nom_fichier.textContent = ref_fichier.name
 	version_fichier = (await ref_fichier.getFile()).lastModified
 	lbl_indicateur_modifie.style.visibility = 'hidden'
 	ignorer_change = true
 	ace_editeur.session.setValue('')
 	ignorer_change = false
+	if (inp_envoi_auto.checked)
+		post_serveur(action='envoi_code')
 }
 
 btn_ouvrir.onclick = async () => {
-	if (inp_envoi_auto.checked)
-		envoi_code()
-	ref_fichier = (await showOpenFilePicker())[0]
+	if (lbl_indicateur_modifie.style.visibility === 'visible' &&
+		!confirm("Les modifications non sauvegardées vont être perdues, voulez-vous continuer ?"))
+		return
+	try {
+		ref_fichier = (await showOpenFilePicker())[0]
+	} catch (e) { return }
 	lbl_nom_fichier.textContent = ref_fichier.name
 	const file = await ref_fichier.getFile()
 	version_fichier = file.lastModified
@@ -199,30 +210,36 @@ btn_ouvrir.onclick = async () => {
 	ignorer_change = true
 	ace_editeur.setValue(await file.text())
 	ignorer_change = false
+	if (inp_envoi_auto.checked)
+		post_serveur(action='envoi_code')
 }
 
 btn_enregistrer.onclick = async () => {
 	if (inp_envoi_auto.checked)
-		envoi_code()
-	if (ref_fichier === null) {
-		ref_fichier = await showSaveFilePicker()
-		lbl_nom_fichier.textContent = ref_fichier.name
-	}
-	const writable = await ref_fichier.createWritable() // demande éventuellement les droits d'écriture
-	await writable.write(ace_editeur.getValue())
-	await writable.close()
+		post_serveur(action='envoi_code')
+	try {
+		if (ref_fichier === null) {
+			ref_fichier = await showSaveFilePicker()
+			lbl_nom_fichier.textContent = ref_fichier.name
+		}
+		const writable = await ref_fichier.createWritable() // demande éventuellement les droits d'écriture
+		await writable.write(ace_editeur.getValue())
+		await writable.close()
+	} catch (e) { return }
 	version_fichier = (await ref_fichier.getFile()).lastModified
 	lbl_indicateur_modifie.style.visibility = 'hidden'
 }
 
 btn_enregistrer_sous.onclick = async () => {
 	if (inp_envoi_auto.checked)
-		envoi_code()
-	ref_fichier = await showSaveFilePicker()
-	lbl_nom_fichier.textContent = ref_fichier.name
-	const writable = await ref_fichier.createWritable()
-	await writable.write(ace_editeur.getValue())
-	await writable.close()
+		post_serveur(action='envoi_code')
+	try {
+		ref_fichier = await showSaveFilePicker()
+		lbl_nom_fichier.textContent = ref_fichier.name
+		const writable = await ref_fichier.createWritable()
+		await writable.write(ace_editeur.getValue())
+		await writable.close()
+	} catch (e) { return }
 	version_fichier = (await ref_fichier.getFile()).lastModified
 	lbl_indicateur_modifie.style.visibility = 'hidden'
 }
@@ -238,7 +255,7 @@ onfocus = async () => {
 		if (file.lastModified > version_fichier) {
 			if (lbl_indicateur_modifie.style.visibility === 'hidden') {
 				if (inp_envoi_auto.checked)
-					envoi_code()
+					post_serveur(action='envoi_code')
 				ignorer_change = true
 				ace_editeur.setValue(await file.text())
 				ignorer_change = false
@@ -248,5 +265,19 @@ onfocus = async () => {
 				ref_fichier = null
 			}
 		}
+	}
+}
+
+
+
+// commande d'appel de l'enseignant
+btn_assistance.onclick = () => {
+	if (btn_assistance.classList.contains('demande_assistance')) {
+		btn_assistance.classList.remove('demande_assistance')
+	} else if (btn_assistance.classList.contains('attente_assistance')) {
+		btn_assistance.classList.remove('attente_assistance')
+		btn_assistance.value = ''
+	} else {
+		btn_assistance.classList.add('demande_assistance')
 	}
 }

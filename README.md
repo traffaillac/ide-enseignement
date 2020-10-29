@@ -14,17 +14,16 @@ Les données de premier rang sont des variables globales du serveur. Lors de son
 	* __page__ - nom de la page pour redirection (`admin`, `enseignant`, `apprenant` ou `expiree`)
 	* __salon__ - indice du salon pour enseignant et apprenant
 * __salons__ - liste des informations sur chaque salon
+	* __nom_salon__ - chaîne telle qu'affichée dans chaque interface
 	* __apprenants__ - dictionnaire indexé par l'identifiant de chaque apprenant
-		* __nom_prenom__ - chaîne telle qu'affichée dans la mosaïque
 		* __statut__ - `absent`, `present`, `main_levee`
 		* __code__ - texte contenant le dernier programme obtenu
 		* __console__ - texte affiché dans la console de l'apprenant (à passer dans un sanitizer côté client mosaïque)
-		* __avancement__ - liste des timestamps des évènements où ont été passés chaque niveau de test, indexée par les numéros des tests
-		* __memo_enseignant__ - texte conservant les notes de l'enseignant pour chaque apprenant
-		* __activite__ - dictionnaire d'évènements indexée par timestamp
-			* __action__ - `connexion`, `deconnexion`, `envoi_code`, `demande_revue`, `revue_enseignant`
-	* __tests__ - liste des scripts de tests permettant de mesurer l'avancement de chaque apprenant
-		* __code__ - texte contenant le script du test
+		* __dernier_envoi__ - timestamp de la dernière mise à jour du code ou console
+		* __activite__ - liste d'évènements triée par timestamp
+			* __timestamp__ - moment de réception de l'évènement
+			* __action__ - `entree`, `sortie`, `envoi_code`, `demande_assistance`, `annulation_assitance`
+	* __mains_levees__ - liste ordonnée des apprenants ayant la main levée
 
 ## Page d'administration
 
@@ -47,6 +46,13 @@ Tâches à gérer :
 * télécharger les données du salon en fichiers CSV dans un ZIP
 
 ## Page d'apprenant
+
+Le bouton d'assistance est une machine à 3 états (stockés comme classe du bouton) : _∅_, _demande_assistance_, _attente_assistance_. Les transitions sont :
+
+* _∅_ → _demande_assistance_ par clic sur le bouton
+* _demande_assistance_ → _∅_ par clic sur le bouton
+* _demande_assistance_ → _attente_assistance_ sur présence du champ __position_assistance__ dans chaque réponse du serveur
+* _attente_assistance_ → _∅_ par clic sur le bouton ou si la réponse du serveur ne contient pas de champ __position_assistance__ 
 
 Tâches à gérer :
 

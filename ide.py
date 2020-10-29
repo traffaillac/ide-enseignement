@@ -13,12 +13,14 @@ acces_ouverts = {
 }
 salons = [
   {
+    'nom_salon': 'Groupe C1a',
     'apprenants': {
       'traffail': {
         'nom_prenom': 'Thibault Raffaillac',
         'statut': 'absent',
         'code': 'print("Hello world!")',
         'console': 'Hello world!',
+        'dernier_envoi': 1602673199889,
         'avancement': [1602673199889],
         'memo_enseignant': 'Test de mémo 🙂',
         'activite': {
@@ -44,7 +46,7 @@ def page_apprenant(salon):
     
     # lecture de l'action et traitements communs
     action = request.args['action']
-    if action not in ('connexion', 'deconnexion', 'envoi_code', 'demande_revue'):
+    if action not in ('connexion', 'deconnexion', 'envoi_code', 'lever_main', 'baisser_main'):
         abort(401)
     activite = {'action': action}
     apprenant['activite'][round(time() * 1000)] = activite
@@ -53,16 +55,19 @@ def page_apprenant(salon):
     if action == 'connexion':
         apprenant['statut'] = 'present'
         json = {k: apprenant[k] for k in ('nom_prenom',)}
+        json['nom_salon'] = salon['nom_salon']
         return jsonify(json)
     elif action == 'deconnexion':
         apprenant['statut'] = 'absent'
-    elif action == 'envoi_code':
+    elif action == 'envoi_code' or action == 'lever_main':
+        if action == 'lever_main':
+            apprenant['statut'] = 'main_levee'
         code = request.json['code'][:100_000] # protection contre les contenus massifs
         console = request.json['console'][-100_000:]
         apprenant['code'] = code
         apprenant['console'] = console
-    elif action == 'demande_revue':
-        apprenant['statut'] = 'main_levee'
+    elif action == 'baisser_main':
+        apprenant['statut'] = 'present'
 
 
 
