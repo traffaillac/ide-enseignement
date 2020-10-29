@@ -1,9 +1,11 @@
 // fonctions de communication avec le serveur
+function attente_assistance() {
+	return btn_assistance.classList.contains('demande_assistance') ||
+	       btn_assistance.classList.contains('attente_assistance')
+}
 function post_serveur(action=null) {
-	const envoi = {
-		attente_assistance: btn_assistance.classList.contains('demande_assistance') ||
-		                    btn_assistance.classList.contains('attente_assistance')
-	}
+	// préparation des données à envoyer
+	const envoi = { attente_assistance: attente_assistance() }
 	if (action === 'envoi_code') {
 		envoi.code = ace_editeur.getValue()
 		envoi.console = txt_console.innerText
@@ -13,18 +15,21 @@ function post_serveur(action=null) {
 	if (lbl_nom_salon.innerText === '')
 		envoi.nom_salon = true
 	
+	// création et envoi de la requête
 	const ajax = new XMLHttpRequest()
-	ajax.timeout = 2000 // durée minimale entre deux requêtes, pour ne pas les mélanger
+	ajax.timeout = 1000 // évite de s'emmêler les pinceaux avec de gros retards
 	ajax.onreadystatechange = () => {
 		if (ajax.readyState === 4 && ajax.status === 200) {
 			const recu = JSON.parse(ajax.responseText)
 			if ('nom_salon' in recu)
 				lbl_nom_salon.innerText = recu.nom_salon
 			if ('position_assistance' in recu) {
-				btn_assistance.value = recu.position_assistance
 				if (btn_assistance.classList.contains('demande_assistance')) {
 					btn_assistance.classList.remove('demande_assistance')
 					btn_assistance.classList.add('attente_assistance')
+					btn_assistance.value = recu.position_assistance
+				} else if (btn_assistance.classList.contains('attente_assistance')) {
+					btn_assistance.value = recu.position_assistance
 				}
 			} else if (btn_assistance.classList.contains('attente_assistance')) {
 				btn_assistance.classList.remove('attente_assistance')
@@ -192,7 +197,7 @@ btn_nouveau.onclick = async () => {
 	ignorer_change = true
 	ace_editeur.session.setValue('')
 	ignorer_change = false
-	if (inp_envoi_auto.checked)
+	if (inp_envoi_auto.checked || attente_assistance())
 		post_serveur(action='envoi_code')
 }
 
@@ -210,12 +215,12 @@ btn_ouvrir.onclick = async () => {
 	ignorer_change = true
 	ace_editeur.setValue(await file.text())
 	ignorer_change = false
-	if (inp_envoi_auto.checked)
+	if (inp_envoi_auto.checked || attente_assistance())
 		post_serveur(action='envoi_code')
 }
 
 btn_enregistrer.onclick = async () => {
-	if (inp_envoi_auto.checked)
+	if (inp_envoi_auto.checked || attente_assistance())
 		post_serveur(action='envoi_code')
 	try {
 		if (ref_fichier === null) {
@@ -231,7 +236,7 @@ btn_enregistrer.onclick = async () => {
 }
 
 btn_enregistrer_sous.onclick = async () => {
-	if (inp_envoi_auto.checked)
+	if (inp_envoi_auto.checked || attente_assistance())
 		post_serveur(action='envoi_code')
 	try {
 		ref_fichier = await showSaveFilePicker()
@@ -254,7 +259,7 @@ onfocus = async () => {
 		const file = await ref_fichier.getFile()
 		if (file.lastModified > version_fichier) {
 			if (lbl_indicateur_modifie.style.visibility === 'hidden') {
-				if (inp_envoi_auto.checked)
+				if (inp_envoi_auto.checked || attente_assistance())
 					post_serveur(action='envoi_code')
 				ignorer_change = true
 				ace_editeur.setValue(await file.text())
