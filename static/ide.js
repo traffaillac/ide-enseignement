@@ -74,9 +74,9 @@ Split(['#panneau_gauche', '#panneau_droite'], {
 
 // gestion des onglets du panneau de droite
 function selection_onglet(onglet, volet) {
-	spn_console.classList.remove('onglet_actif')
-	spn_parametres.classList.remove('onglet_actif')
-	onglet.classList.add('onglet_actif')
+	spn_console.classList.remove('actif')
+	spn_parametres.classList.remove('actif')
+	onglet.classList.add('actif')
 	txt_console.style.display = 'none'
 	div_parametres.style.display = 'none'
 	volet.style.display = null

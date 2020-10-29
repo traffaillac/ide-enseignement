@@ -60,7 +60,9 @@
 			height: 28px;
 		}
 		.icone:disabled { opacity: 0.5 }
-		.icone:hover:enabled { background-color: #e4e4e4 }
+		.icone:hover:enabled:not(.demande_assistance,.attente_assistance) { background-color: #e4e4e4 }
+		.demande_assistance { background-color: gold }
+		.attente_assistance { background-color: gold; background-size: 0 }
 		
 		/* gestion des onglets du panneau de droite */
 		.onglet {
@@ -73,12 +75,11 @@
 			margin-left: 4px;
 			transition: 0.2s;
 		}
-		.onglet:hover { background-color: #e4e4e4 }
-		.onglet_actif {
+		.onglet:hover:not(.actif) { background-color: #e4e4e4 }
+		.onglet.actif {
 			background-color: lightblue;
 			box-shadow: 0 0 8px lightgray;
 		}
-		.onglet_actif:hover { background-color: lightblue }
 	</style>
 </head>
 <body style="
