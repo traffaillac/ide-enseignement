@@ -13,66 +13,78 @@ acces_ouverts = {
 }
 salons = [
   {
-    'nom_salon': 'Groupe C1a',
+    'nom_salon': 'Groupe A1a',
     'apprenants': {
-      'traffail': {
-        'nom_prenom': 'Thibault Raffaillac',
+      'Thibault Raffaillac': {
         'statut': 'absent',
         'code': 'print("Hello world!")',
         'console': 'Hello world!',
         'dernier_envoi': 1602673199889,
-        'avancement': [1602673199889],
-        'memo_enseignant': 'Test de mémo 🙂',
-        'activite': {
-          1602673199889: {'action': 'envoi_code'},
-        },
+        'activite': [
+            (1602673199889, 'envoi_code'),
+        ],
       },
     },
-    'tests': [],
+    'liste_assistances': [],
   },
 ]
 
 
 
 def page_apprenant(salon):
-    if not request.args:
+    if request.method == 'GET':
         return send_file('ide.html')
+    recu = request.json
+    envoi = {}
+    timestamp = round(time() * 1000)
     
-    # vérification de la valididé de l'identifiant
-    try:
-        identifiant = request.cookies['identifiant']
-        apprenant = salon['apprenants'][identifiant]
-    except: abort(401)
+    # recherche de l'apprenant et création d'un nouveau si inconnu
+    apprenants = salon['apprenants']
+    try: identifiant = request.cookies['identifiant']
+    except: abort(400)
+    apprenant = apprenants.setdefault(identifiant, {
+        'statut': 'present',
+        'code': '',
+        'console': '',
+        'dernier_envoi': 0,
+        'activite': []})
     
-    # lecture de l'action et traitements communs
-    action = request.args['action']
-    if action not in ('connexion', 'deconnexion', 'envoi_code', 'lever_main', 'baisser_main'):
-        abort(401)
-    activite = {'action': action}
-    apprenant['activite'][round(time() * 1000)] = activite
-    
-    # traitements spécifiques à chaque action
-    if action == 'connexion':
-        apprenant['statut'] = 'present'
-        json = {k: apprenant[k] for k in ('nom_prenom',)}
-        json['nom_salon'] = salon['nom_salon']
-        return jsonify(json)
-    elif action == 'deconnexion':
+    # gestion des entrées/sorties dans le salon
+    activite = apprenant['activite']
+    if 'sortie' in recu:
         apprenant['statut'] = 'absent'
-    elif action == 'envoi_code' or action == 'lever_main':
-        if action == 'lever_main':
-            apprenant['statut'] = 'main_levee'
-        code = request.json['code'][:100_000] # protection contre les contenus massifs
-        console = request.json['console'][-100_000:]
-        apprenant['code'] = code
-        apprenant['console'] = console
-    elif action == 'baisser_main':
+        activite.append((timestamp, 'sortie'))
+        return ('', 204)
+    if apprenant['statut'] == 'absent':
         apprenant['statut'] = 'present'
+        activite.append((timestamp, 'entree'))
+    if 'nom_salon' in recu:
+        envoi['nom_salon'] = salon['nom_salon']
+    
+    # gestion des demandes d'assistance
+    liste_assistances = salon['liste_assistances']
+    if recu['attente_assistance']:
+        if apprenant['statut'] != 'attente_assistance':
+            apprenant['statut'] = 'attente_assistance'
+            liste_assistances.append(apprenant)
+    elif apprenant['statut'] == 'attente_assistance':
+        apprenant['statut'] = 'present'
+        liste_assistances.remove(apprenant)
+    if apprenant['statut'] == 'attente_assistance':
+        envoi['position_assistance'] = liste_assistances.index(apprenant) + 1
+    
+    # réception de code
+    if 'code' in recu and 'console' in recu:
+        apprenant['code'] = recu['code']
+        apprenant['console'] = recu['console']
+        apprenant['dernier_envoi'] = timestamp
+        activite.append((timestamp, 'envoi_code'))
+    return jsonify(envoi)
 
 
 
 def page_enseignant(salon):
-    if not request.args:
+    if request.method == 'GET':
         return send_file('mosaique.html')
     
     # lecture de l'action et traitements spécifiques

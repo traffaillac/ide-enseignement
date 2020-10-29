@@ -1,19 +1,22 @@
 // fonctions de communication avec le serveur
 function post_serveur(action=null) {
-	const envoi = {demande_assistance: btn_assistance.classList.contains('demande_assistance')}
+	const envoi = {
+		attente_assistance: btn_assistance.classList.contains('demande_assistance') ||
+		                    btn_assistance.classList.contains('attente_assistance')
+	}
 	if (action === 'envoi_code') {
 		envoi.code = ace_editeur.getValue()
 		envoi.console = txt_console.innerText
 	} else if (action === 'sortie') {
 		envoi.sortie = true
 	}
+	if (lbl_nom_salon.innerText === '')
+		envoi.nom_salon = true
 	
 	const ajax = new XMLHttpRequest()
 	ajax.timeout = 2000 // durée minimale entre deux requêtes, pour ne pas les mélanger
 	ajax.onreadystatechange = () => {
-		if (ajax.readyStage === 4 && ajax.status === 200) {
-			fld_barre_outils.disabled = false
-			ace_editeur.setReadOnly(false)
+		if (ajax.readyState === 4 && ajax.status === 200) {
 			const recu = JSON.parse(ajax.responseText)
 			if ('nom_salon' in recu)
 				lbl_nom_salon.innerText = recu.nom_salon
@@ -30,6 +33,7 @@ function post_serveur(action=null) {
 		}
 	}
 	ajax.open('POST', '')
+	ajax.setRequestHeader('Content-Type', 'application/json; charset=utf-8')
 	ajax.send(JSON.stringify(envoi))
 }
 
@@ -46,7 +50,7 @@ let version_fichier = 0
 ace.config.set('basePath', 'https://pagecdn.io/lib/ace/1.4.12/')
 const ace_editeur = ace.edit('txt_editeur', {
 	mode: 'ace/mode/python',
-	readOnly: true,
+	// readOnly: true,
 	showInvisibles: JSON.parse(localStorage.getItem('inp_showInvisibles') || 'false'),
 	tabSize: JSON.parse(localStorage.getItem('inp_tabSize') || '4'),
 	theme: `ace/theme/${localStorage.getItem('inp_theme') || 'xcode'}`,
@@ -143,14 +147,10 @@ let identifiant = decodeURIComponent((document.cookie.split('; ').find(kv => kv.
 if (identifiant === '') {
 	identifiant = prompt('Veuillez renseigner votre Prénom et Nom pour accéder à ce salon') || ''
 	document.cookie = `identifiant=${encodeURIComponent(identifiant)}`
-	if (identifiant === 'Offline') {
-		fld_barre_outils.disabled = false
-		ace_editeur.setReadOnly(false)
-	}
 }
 lbl_nom_apprenant.innerText = identifiant
-onpageshow = () => post_serveur()
-onpagehide = () => post_serveur(action='sortie')
+onpageshow = () => { post_serveur() }
+onpagehide = () => { post_serveur(action='sortie') }
 
 
 

@@ -16,14 +16,14 @@ Les données de premier rang sont des variables globales du serveur. Lors de son
 * __salons__ - liste des informations sur chaque salon
 	* __nom_salon__ - chaîne telle qu'affichée dans chaque interface
 	* __apprenants__ - dictionnaire indexé par l'identifiant de chaque apprenant
-		* __statut__ - `absent`, `present`, `main_levee`
+		* __statut__ - `absent`, `present`, `attente_assistance`
 		* __code__ - texte contenant le dernier programme obtenu
 		* __console__ - texte affiché dans la console de l'apprenant (à passer dans un sanitizer côté client mosaïque)
 		* __dernier_envoi__ - timestamp de la dernière mise à jour du code ou console
 		* __activite__ - liste d'évènements triée par timestamp
 			* __timestamp__ - moment de réception de l'évènement
 			* __action__ - `entree`, `sortie`, `envoi_code`, `demande_assistance`, `annulation_assitance`
-	* __mains_levees__ - liste ordonnée des apprenants ayant la main levée
+	* __liste_assistances__ - liste ordonnée des apprenants ayant demandé assistance
 
 ## Page d'administration
 
