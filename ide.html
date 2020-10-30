@@ -4,30 +4,8 @@
 	<meta charset=utf-8>
 	<title>IDE en ligne</title>
 	<link rel=stylesheet href=https://fonts.googleapis.com/css?family=Raleway>
+	<link rel=stylesheet href=static/style.css>
 	<style>
-		/* reset CSS (les libs CSS sont généralement orientées blogs) */
-		html, body, div, span, applet, object, iframe,
-		h1, h2, h3, h4, h5, h6, p, blockquote, pre,
-		a, abbr, acronym, address, big, cite, code,
-		del, dfn, em, img, ins, kbd, q, s, samp,
-		small, strike, strong, sub, sup, tt, var,
-		b, u, i, center,
-		dl, dt, dd, ol, ul, li,
-		fieldset, form, label, legend,
-		table, caption, tbody, tfoot, thead, tr, th, td,
-		article, aside, canvas, details, embed, 
-		figure, figcaption, footer, header, hgroup, 
-		menu, nav, output, ruby, section, summary,
-		time, mark, audio, video, button {
-			box-sizing: border-box;
-			margin: 0;
-			padding: 0;
-			border: 0;
-			font-size: 100%;
-			font: inherit;
-			vertical-align: baseline;
-		}
-		
 		/* styles spécifiques à chaque tag */
 		hr {
 			margin: 12px;
@@ -41,49 +19,6 @@
 			border: 1px solid grey;
 			border-radius: 5px;
 			padding: 2px;
-		}
-		
-		/* Split.js interdit de fixer ce CSS autrement que par classe */
-		.gutter-horizontal { cursor: ew-resize }
-		
-		/* styles spécifiques à la barre d'outils */
-		.icone {
-			flex: none;
-			background-color: white;
-			background-position: center;
-			background-repeat: no-repeat;
-			background-size: 24px 24px;
-			border: 0;
-			border-radius: 4px;
-			cursor: pointer;
-			margin-left: 2px;
-			width: 28px;
-			height: 28px;
-		}
-		.icone:disabled { opacity: 0.5 }
-		.icone:hover:enabled:not(.attente_assistance) { background-color: #e4e4e4 }
-		.demande_assistance { background-color: gold }
-		.attente_assistance {
-			background-color: gold;
-			background-size: 0;
-			font: bold 15px Raleway;
-		}
-		
-		/* gestion des onglets du panneau de droite */
-		.onglet {
-			display: inline-flex;
-			align-self: flex-end;
-			border-radius: 6px 6px 0 0;
-			border-bottom: 0;
-			cursor: pointer;
-			padding: 8px 8px;
-			margin-left: 4px;
-			transition: 0.2s;
-		}
-		.onglet:hover:not(.actif) { background-color: #e4e4e4 }
-		.onglet.actif {
-			background-color: lightblue;
-			box-shadow: 0 0 8px lightgray;
 		}
 	</style>
 </head>
@@ -218,18 +153,6 @@
 			<div style="
 				display: flex;
 				align-items: center">
-				<input id=inp_useSoftTabs type=checkbox>
-				<label for=inp_useSoftTabs>indenter avec des espaces plutôt que des caractères tabulation</label>
-			</div>
-			<div style="
-				display: flex;
-				align-items: center">
-				<input id=inp_showInvisibles type=checkbox>
-				<label for=inp_showInvisibles>afficher les espaces et caractères invisibles</label>
-			</div>
-			<div style="
-				display: flex;
-				align-items: center">
 				<label for=inp_tabSize>Taille d'une indentation :</label>
 				<select id=inp_tabSize>
 					<option value=2>2 espaces</option>
@@ -240,6 +163,18 @@
 					<option value=7>7 espaces</option>
 					<option value=8>8 espaces</option>
 				</select>
+			</div>
+			<div style="
+				display: flex;
+				align-items: center">
+				<input id=inp_useSoftTabs type=checkbox>
+				<label for=inp_useSoftTabs>indenter avec des espaces plutôt que des caractères tabulation</label>
+			</div>
+			<div style="
+				display: flex;
+				align-items: center">
+				<input id=inp_showInvisibles type=checkbox>
+				<label for=inp_showInvisibles>afficher les espaces et caractères invisibles</label>
 			</div>
 		</div>
 	</div>

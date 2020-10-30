@@ -1,7 +1,7 @@
 // fonctions de communication avec le serveur
 function attente_assistance() {
-	return btn_assistance.classList.contains('demande_assistance') ||
-	       btn_assistance.classList.contains('attente_assistance')
+	return btn_assistance.classList.contains('active') ||
+	       btn_assistance.classList.contains('checked')
 }
 function post_serveur(action=null) {
 	// préparation des données à envoyer
@@ -24,15 +24,15 @@ function post_serveur(action=null) {
 			if ('nom_salon' in recu)
 				lbl_nom_salon.innerText = recu.nom_salon
 			if ('position_assistance' in recu) {
-				if (btn_assistance.classList.contains('demande_assistance')) {
-					btn_assistance.classList.remove('demande_assistance')
-					btn_assistance.classList.add('attente_assistance')
+				if (btn_assistance.classList.contains('active')) {
+					btn_assistance.classList.remove('active')
+					btn_assistance.classList.add('checked')
 					btn_assistance.value = recu.position_assistance
-				} else if (btn_assistance.classList.contains('attente_assistance')) {
+				} else if (btn_assistance.classList.contains('checked')) {
 					btn_assistance.value = recu.position_assistance
 				}
-			} else if (btn_assistance.classList.contains('attente_assistance')) {
-				btn_assistance.classList.remove('attente_assistance')
+			} else if (btn_assistance.classList.contains('checked')) {
+				btn_assistance.classList.remove('checked')
 				btn_assistance.value = ''
 			}
 		}
@@ -83,9 +83,9 @@ Split(['#panneau_gauche', '#panneau_droite'], {
 
 // gestion des onglets du panneau de droite
 function selection_onglet(onglet, volet) {
-	spn_console.classList.remove('actif')
-	spn_parametres.classList.remove('actif')
-	onglet.classList.add('actif')
+	spn_console.classList.remove('checked')
+	spn_parametres.classList.remove('checked')
+	onglet.classList.add('checked')
 	txt_console.style.display = 'none'
 	div_parametres.style.display = 'none'
 	volet.style.display = null
@@ -277,13 +277,13 @@ onfocus = async () => {
 
 // commande d'appel de l'enseignant
 btn_assistance.onclick = () => {
-	if (btn_assistance.classList.contains('demande_assistance')) {
-		btn_assistance.classList.remove('demande_assistance')
-	} else if (btn_assistance.classList.contains('attente_assistance')) {
-		btn_assistance.classList.remove('attente_assistance')
+	if (btn_assistance.classList.contains('active')) {
+		btn_assistance.classList.remove('active')
+	} else if (btn_assistance.classList.contains('checked')) {
+		btn_assistance.classList.remove('checked')
 		btn_assistance.value = ''
 	} else {
-		btn_assistance.classList.add('demande_assistance')
+		btn_assistance.classList.add('active')
 		post_serveur('envoi_code')
 	}
 }
