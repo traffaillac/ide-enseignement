@@ -39,8 +39,8 @@ time, mark, audio, video, button {
 	height: 28px;
 }
 .icone:disabled { opacity: 0.5 }
-.icone:hover:enabled:not(.checked) { background-color: #e4e4e4 }
-.active { background-color: gold }
+.icone:hover:enabled:not(.checking):not(.checked) { background-color: #e4e4e4 }
+.checking { background-color: gold }
 .checked {
 	background-color: gold;
 	background-size: 0;

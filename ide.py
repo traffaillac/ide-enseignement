@@ -63,7 +63,7 @@ def page_apprenant(salon):
     
     # gestion des demandes d'assistance
     liste_assistances = salon['liste_assistances']
-    if recu['attente_assistance']:
+    if recu['demande_assistance']:
         if apprenant['statut'] != 'attente_assistance':
             apprenant['statut'] = 'attente_assistance'
             liste_assistances.append(apprenant)

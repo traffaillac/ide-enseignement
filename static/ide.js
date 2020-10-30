@@ -1,11 +1,9 @@
 // fonctions de communication avec le serveur
-function attente_assistance() {
-	return btn_assistance.classList.contains('active') ||
-	       btn_assistance.classList.contains('checked')
-}
 function post_serveur(action=null) {
 	// préparation des données à envoyer
-	const envoi = { attente_assistance: attente_assistance() }
+	const envoi = {}
+	if (!btn_assistance.classList.contains('checked'))
+		envoi.demande_assistance = btn_assistance.classList.contains('checking')
 	if (action === 'envoi_code') {
 		envoi.code = ace_editeur.getValue()
 		envoi.console = txt_console.innerText
@@ -24,8 +22,8 @@ function post_serveur(action=null) {
 			if ('nom_salon' in recu)
 				lbl_nom_salon.innerText = recu.nom_salon
 			if ('position_assistance' in recu) {
-				if (btn_assistance.classList.contains('active')) {
-					btn_assistance.classList.remove('active')
+				if (btn_assistance.classList.contains('checking')) {
+					btn_assistance.classList.remove('checking')
 					btn_assistance.classList.add('checked')
 					btn_assistance.value = recu.position_assistance
 				} else if (btn_assistance.classList.contains('checked')) {
@@ -184,6 +182,12 @@ onkeydown = (e) => {
 
 
 // commandes d'association du code à un fichier
+function envoi_ok() {
+	return inp_envoi_auto.checked ||
+	       btn_assistance.classList.contains('checking') ||
+	       btn_assistance.classList.contains('checked')
+}
+
 btn_nouveau.onclick = async () => {
 	if (lbl_indicateur_modifie.style.visibility === 'visible' &&
 		!confirm("Les modifications non sauvegardées vont être perdues, voulez-vous continuer ?"))
@@ -197,7 +201,7 @@ btn_nouveau.onclick = async () => {
 	ignorer_change = true
 	ace_editeur.session.setValue('')
 	ignorer_change = false
-	if (inp_envoi_auto.checked || attente_assistance())
+	if (envoi_ok())
 		post_serveur(action='envoi_code')
 }
 
@@ -215,12 +219,12 @@ btn_ouvrir.onclick = async () => {
 	ignorer_change = true
 	ace_editeur.setValue(await file.text())
 	ignorer_change = false
-	if (inp_envoi_auto.checked || attente_assistance())
+	if (envoi_ok())
 		post_serveur(action='envoi_code')
 }
 
 btn_enregistrer.onclick = async () => {
-	if (inp_envoi_auto.checked || attente_assistance())
+	if (envoi_ok())
 		post_serveur(action='envoi_code')
 	try {
 		if (ref_fichier === null) {
@@ -236,7 +240,7 @@ btn_enregistrer.onclick = async () => {
 }
 
 btn_enregistrer_sous.onclick = async () => {
-	if (inp_envoi_auto.checked || attente_assistance())
+	if (envoi_ok())
 		post_serveur(action='envoi_code')
 	try {
 		ref_fichier = await showSaveFilePicker()
@@ -259,7 +263,7 @@ onfocus = async () => {
 		const file = await ref_fichier.getFile()
 		if (file.lastModified > version_fichier) {
 			if (lbl_indicateur_modifie.style.visibility === 'hidden') {
-				if (inp_envoi_auto.checked || attente_assistance())
+				if (envoi_ok())
 					post_serveur(action='envoi_code')
 				ignorer_change = true
 				ace_editeur.setValue(await file.text())
@@ -277,13 +281,13 @@ onfocus = async () => {
 
 // commande d'appel de l'enseignant
 btn_assistance.onclick = () => {
-	if (btn_assistance.classList.contains('active')) {
-		btn_assistance.classList.remove('active')
+	if (btn_assistance.classList.contains('checking')) {
+		btn_assistance.classList.remove('checking')
 	} else if (btn_assistance.classList.contains('checked')) {
 		btn_assistance.classList.remove('checked')
 		btn_assistance.value = ''
 	} else {
-		btn_assistance.classList.add('active')
+		btn_assistance.classList.add('checking')
 		post_serveur('envoi_code')
 	}
 }

@@ -34,6 +34,19 @@ Tâches à gérer :
 
 ## Page d'enseignant
 
+L'indicateur de demande d'assistance de chaque cellule en mosaïque est une machine à 3 états (stockés comme classe de chaque cellule) :
+
+* _∅_ - pas de demande en cours
+* _checked_ - l'apprenant de la cellule est sur liste d'attente d'assistance
+* _unchecking_ - l'assistance est terminée, tant que l'état est actif on inclut l'apprenant dans la liste `fin_assistance` envoyée à chaque mise à jour de la mosaïque
+
+Les transitions sont :
+
+* _∅_ → _checked_ sur présence du champ __position_assistance__ pour l'apprenant
+* _checked_ → _∅_ sur absence du champ __position_assistance__ pour l'apprenant
+* _checked_ → _unchecking_ par clic sur le bouton de fin d'assistance
+* _unchecking_ → _∅_ sur absence du champ __position_assistance__ pour l'apprenant
+
 Tâches à gérer :
 
 * fournir ou modifier la liste des identifiants apprenants et les informations associées
@@ -47,12 +60,18 @@ Tâches à gérer :
 
 ## Page d'apprenant
 
-Le bouton d'assistance est une machine à 3 états (stockés comme classe du bouton) : _∅_, _demande_assistance_, _attente_assistance_. Les transitions sont :
+Le bouton d'assistance côté apprenant est une machine à 3 états (stockés comme classe du bouton) : 
 
-* _∅_ → _demande_assistance_ par clic sur le bouton
-* _demande_assistance_ → _∅_ par clic sur le bouton
-* _demande_assistance_ → _attente_assistance_ sur présence du champ __position_assistance__ dans chaque réponse du serveur
-* _attente_assistance_ → _∅_ par clic sur le bouton ou si la réponse du serveur ne contient pas de champ __position_assistance__ 
+* _∅_ - on envoie `demande_assistance: false` à chaque requête au serveur pour interdire la présence en liste d'attente
+* _checking_ - on envoie `demande_assistance: true` à chaque requête pour demander l'ajout en liste d'attente
+* _checked_ - on n'envoie aucun champ `demande_assistance` pour laisser le serveur gérer le maintien en liste d'attente
+
+Les transitions sont :
+
+* _∅_ → _checking_ par clic sur le bouton
+* _checking_ → _∅_ par clic sur le bouton
+* _checking_ → _checked_ sur présence du champ __position_assistance__ dans une réponse du serveur
+* _checked_ → _∅_ par clic sur le bouton ou si une réponse du serveur ne contient pas de champ __position_assistance__ 
 
 Tâches à gérer :
 

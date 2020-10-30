@@ -1,3 +1,12 @@
+// fonctions de communication avec le serveur
+function maj_mosaique() {
+	const envoi = { focus: lbl_nom_apprenant.innerText }
+	
+}
+
+
+
+// ancien code
 const ajax = new XMLHttpRequest()
 const ace_modelist = ace.require('ace/ext/modelist')
 const ace_editeur = ace.edit('txt_editeur')
