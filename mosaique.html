@@ -6,7 +6,15 @@
 	<link rel=stylesheet href=https://fonts.googleapis.com/css?family=Raleway>
 	<link rel=stylesheet href=static/style.css>
 	<style>
-		
+		#div_mosaique>div {
+			cursor: pointer;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+		}
+		.absent { background-color: lightgray }
+		.present { background-color: dodgerblue }
+		.attente_assistance { background-color: gold }
 	</style>
 </head>
 <body style="
@@ -27,7 +35,7 @@
 		<span id=spn_mosaique class=onglet>Mosaïque</span>
 		<span id=lbl_nom_salon style="
 			margin-left: auto;
-			margin-right: 8px">SALON</span>
+			margin-right: 8px"></span>
 	</div>
 	<div id=div_mosaique style="
 		flex: auto;
@@ -36,7 +44,7 @@
 	</div>
 	<div id=div_overlay style="
 		position: fixed;
-		display: flex;
+		display: none;
 		align-items: stretch;
 		width: 100vw;
 		height: 100vh;

@@ -1,5 +1,6 @@
 from flask import Flask, abort, jsonify, render_template, request, send_file
 from time import time
+from urllib.parse import unquote
 
 app = Flask(__name__)
 
@@ -40,7 +41,7 @@ def page_apprenant(salon):
     
     # recherche de l'apprenant et création d'un nouveau si inconnu
     apprenants = salon['apprenants']
-    try: identifiant = request.cookies['identifiant']
+    try: identifiant = unquote(request.cookies['identifiant'])
     except: abort(400)
     apprenant = apprenants.setdefault(identifiant, {
         'statut': 'present',
@@ -63,11 +64,10 @@ def page_apprenant(salon):
     
     # gestion des demandes d'assistance
     liste_assistances = salon['liste_assistances']
-    if recu['demande_assistance']:
-        if apprenant['statut'] != 'attente_assistance':
-            apprenant['statut'] = 'attente_assistance'
-            liste_assistances.append(apprenant)
-    elif apprenant['statut'] == 'attente_assistance':
+    if recu['demande_assistance'] == True and apprenant['statut'] != 'attente_assistance':
+        apprenant['statut'] = 'attente_assistance'
+        liste_assistances.append(apprenant)
+    elif recu['demande_assistance'] == False and apprenant['statut'] == 'attente_assistance':
         apprenant['statut'] = 'present'
         liste_assistances.remove(apprenant)
     if apprenant['statut'] == 'attente_assistance':
@@ -86,11 +86,17 @@ def page_apprenant(salon):
 def page_enseignant(salon):
     if request.method == 'GET':
         return send_file('mosaique.html')
+    recu = request.json
+    envoi = {}
     
     # lecture de l'action et traitements spécifiques
     action = request.args['action']
-    if action == 'liste_apprenants':
-        return jsonify(salon['apprenants'])
+    if action == 'maj_mosaique':
+        if 'nom_salon' in recu:
+            envoi['nom_salon'] = salon['nom_salon']
+        envoi['apprenants'] = [{'nom_apprenant': identifiant, 'statut': apprenant['statut']}
+            for identifiant, apprenant in salon['apprenants'].items()]
+    return jsonify(envoi)
 
 
 
