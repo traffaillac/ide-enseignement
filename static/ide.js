@@ -70,7 +70,7 @@ ace_editeur.session.on('change', (delta) => {
 
 
 // initialisation du séparateur mobile entre panneaux gauche et droite
-Split(['#panneau_gauche', '#panneau_droite'], {
+Split(['#div_gauche', '#div_droite'], {
 	sizes: JSON.parse(localStorage.getItem('split_sizes') || '[50,50]'),
 	gutterSize: 4,
 	snapOffset: 0,

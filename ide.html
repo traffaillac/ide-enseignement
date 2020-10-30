@@ -23,14 +23,13 @@
 	</style>
 </head>
 <body style="
-	background-color: white;
 	font: 15px Raleway;
 	width: 100vw;
 	height: 100vh;
 	display: flex;
 	flex-flow: row nowrap;
 	align-items: stretch">
-	<div id=panneau_gauche style="
+	<div id=div_gauche style="
 		flex: auto;
 		display: flex;
 		flex-flow: column nowrap;
@@ -41,7 +40,7 @@
 				padding: 0 6px;
 				height: 40px;
 				display: flex;
-				flex-flow: row wrap;
+				flex-flow: row nowrap;
 				align-items: center;
 				justify-content: flex-start">
 				<span id=lbl_nom_fichier style="
@@ -63,7 +62,7 @@
 			flex: auto;
 			border: 1px solid lightgray"></div>
 	</div>
-	<div id=panneau_droite style="
+	<div id=div_droite style="
 		flex: auto;
 		display: flex;
 		flex-flow: column nowrap;
@@ -78,8 +77,7 @@
 			<span id=spn_console class=onglet>Console</span>
 			<span id=spn_parametres class=onglet>Paramètres</span>
 			<span id=lbl_nom_salon style="
-				margin-left: auto;
-				margin-right: 8px"></span> -
+				margin: 0 8px 0 auto"></span> -
 			<span id=lbl_nom_apprenant style="
 				margin: 0 8px"></span>
 		</div>

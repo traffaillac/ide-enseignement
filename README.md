@@ -8,7 +8,7 @@ Chaque page est chargée une seule fois, et se compose d'onglets pour ses diffé
 
 ## Schémas de données
 
-Les données de premier rang sont des variables globales du serveur. Lors de sont démarrage, elles sont chargées à partir d'une base de données clés-valeurs simple. Ensuite chaque modification d'une donnée résulte en l'enregistrement en base pour la clé correspondante.
+Les données de premier rang sont des variables globales du serveur. Lors de son démarrage, elles sont chargées à partir d'une base de données clés-valeurs simple. Ensuite chaque modification d'une donnée résulte en l'enregistrement en base pour la clé correspondante.
 
 * __acces_ouverts__ - dictionnaire indexé par l'adresse de chaque page
 	* __page__ - nom de la page pour redirection (`admin`, `enseignant`, `apprenant` ou `expiree`)
