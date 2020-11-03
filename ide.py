@@ -93,11 +93,17 @@ def page_enseignant(salon):
 	# lecture de l'action et traitements spécifiques
 	action = request.args['action']
 	if action == 'maj_mosaique':
+		apprenants = salon['apprenants']
 		if 'nom_salon' in recu:
 			envoi['nom_salon'] = salon['nom_salon']
-		apprenants = salon['apprenants']
-		envoi['apprenants'] = [{'nom_apprenant': identifiant, 'statut': apprenant['statut']}
-			for identifiant, apprenant in apprenants.items()]
+		envoi_apprenants = envoi['apprenants'] = []
+		for identifiant, apprenant in apprenants.items():
+			envoi_apprenant = {}
+			envoi_apprenants.append(envoi_apprenant)
+			envoi_apprenant['nom_apprenant'] = identifiant
+			statut = envoi_apprenant['statut'] = apprenant['statut']
+			if statut == 'attente_assistance':
+				envoi_apprenant['position_assistance'] = salon['liste_assistances'].index(apprenant) + 1
 		if 'nom_apprenant' in recu:
 			nom_apprenant = recu['nom_apprenant']
 			apprenant = apprenants[nom_apprenant]

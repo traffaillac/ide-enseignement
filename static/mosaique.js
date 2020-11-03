@@ -26,16 +26,23 @@ function maj_mosaique() {
 			div_mosaique.style.gridTemplateRows = `repeat(${lignes}, 1fr)`
 			while (div_mosaique.children.length > apprenants.length)
 				div_mosaique.lastChild.remove()
-			while (div_mosaique.children.length < apprenants.length)
-				div_mosaique.insertAdjacentHTML('beforeend', '<div onclick="focus_apprenant(this.children[0].innerText)"><span>Test</span></div>')
+			while (div_mosaique.children.length < apprenants.length) {
+				div_mosaique.insertAdjacentHTML('beforeend',
+					`<div onclick="focus_apprenant(this.children[0].innerText)">
+						<span></span>
+						<span class=lbl_position></span>
+					</div>`)
+			}
 		}
 		
 		// on transfère les données des apprenants vers les cellules de la grille
 		for (let i = 0; i < apprenants.length; i++) {
 			const cellule = div_mosaique.children[i]
 			const apprenant = apprenants[i]
-			cellule.children[0].innerText = apprenant.nom_apprenant
 			cellule.className = apprenant.statut
+			cellule.children[0].innerText = apprenant.nom_apprenant
+			cellule.children[1].innerText = apprenant.position_assistance || ''
+			
 		}
 		
 		// récupération de données en vue apprenant
