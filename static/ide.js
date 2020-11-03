@@ -4,7 +4,7 @@ function post_serveur(action=null) {
 	const envoi = { demande_assistance: btn_assistance.classList.contains('checked') ? null : btn_assistance.classList.contains('checking') }
 	if (action === 'envoi_code') {
 		envoi.code = ace_editeur.getValue()
-		envoi.console = txt_console.innerText
+		envoi.console = txt_console.value
 	} else if (action === 'sortie') {
 		envoi.sortie = true
 	}
@@ -125,6 +125,11 @@ inp_theme.onchange = () => {
 	ace_editeur.setTheme(`ace/theme/${inp_theme.value}`)
 	localStorage.setItem('inp_theme', inp_theme.value)
 }
+inp_tabSize.value = localStorage.getItem('inp_tabSize') || '4'
+inp_tabSize.onchange = () => {
+	ace_editeur.session.setTabSize(inp_tabSize.value)
+	localStorage.setItem('inp_tabSize', inp_tabSize.value)
+}
 inp_useSoftTabs.checked = JSON.parse(localStorage.getItem('inp_useSoftTabs') || 'true')
 inp_useSoftTabs.onchange = () => {
 	ace_editeur.session.setUseSoftTabs(inp_useSoftTabs.checked)
@@ -134,11 +139,6 @@ inp_showInvisibles.checked = JSON.parse(localStorage.getItem('inp_showInvisibles
 inp_showInvisibles.onchange = () => {
 	ace_editeur.setShowInvisibles(inp_showInvisibles.checked)
 	localStorage.setItem('inp_showInvisibles', JSON.stringify(inp_showInvisibles.checked))
-}
-inp_tabSize.value = localStorage.getItem('inp_tabSize') || '4'
-inp_tabSize.onchange = () => {
-	ace_editeur.session.setTabSize(inp_tabSize.value)
-	localStorage.setItem('inp_tabSize', inp_tabSize.value)
 }
 
 
@@ -214,9 +214,21 @@ btn_ouvrir.onclick = async () => {
 	const file = await ref_fichier.getFile()
 	version_fichier = file.lastModified
 	lbl_indicateur_modifie.style.visibility = 'hidden'
+	const code = await file.text()
 	ignorer_change = true
-	ace_editeur.setValue(await file.text())
+	ace_editeur.setValue(code)
 	ignorer_change = false
+	
+	let indent = detect_indent(code)
+	if (indent === '\t') {
+		inp_useSoftTabs.checked = false
+		inp_useSoftTabs.onchange()
+	} else if (indent !== undefined) {
+		inp_useSoftTabs.checked = true
+		inp_useSoftTabs.onchange()
+		inp_tabSize.value = indent
+		inp_tabSize.onchange()
+	}
 	if (envoi_ok())
 		post_serveur(action='envoi_code')
 }

@@ -37,6 +37,14 @@ function maj_mosaique() {
 			cellule.children[0].innerText = apprenant.nom_apprenant
 			cellule.className = apprenant.statut
 		}
+		
+		// récupération de données en vue apprenant
+		if (('nom_apprenant' in recu) && lbl_nom_apprenant.innerText === recu.nom_apprenant) {
+			ace_editeur.session.setValue(recu.code)
+			let indent = detect_indent(recu.code)
+			ace_editeur.session.setTabSize(indent === undefined || indent === '\t' ? 4 : indent)
+			txt_console.value = recu.console
+		}
 	}
 	ajax.open('POST', '?action=maj_mosaique')
 	ajax.setRequestHeader('Content-Type', 'application/json; charset=utf-8')
@@ -61,6 +69,13 @@ maj_mosaique()
 function focus_apprenant(nom_apprenant) {
 	div_overlay.style.display = 'flex'
 	lbl_nom_apprenant.innerText = nom_apprenant
+	maj_mosaique()
+}
+function unfocus_apprenant() {
+	div_overlay.style.display='none'
+	lbl_nom_apprenant.innerText = ''
+	ace_editeur.session.setValue('')
+	txt_console.value = ''
 }
 
 
