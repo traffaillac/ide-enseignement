@@ -6,7 +6,8 @@
 	<link rel=stylesheet href=https://fonts.googleapis.com/css?family=Raleway>
 	<link rel=stylesheet href=static/style.css>
 	<style>
-		#div_mosaique>div {
+		.cellule {
+			background-color: lightgray;
 			cursor: pointer;
 			display: flex;
 			flex-flow: column nowrap;
@@ -14,9 +15,8 @@
 			justify-content: center;
 		}
 		.lbl_position { font-size: 60px }
-		.absent { background-color: lightgray }
-		.present { background-color: dodgerblue }
-		.attente_assistance { background-color: gold }
+		div.present { background-color: dodgerblue }
+		div.checked { background-color: gold }
 	</style>
 </head>
 <body style="

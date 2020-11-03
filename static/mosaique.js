@@ -28,7 +28,7 @@ function maj_mosaique() {
 				div_mosaique.lastChild.remove()
 			while (div_mosaique.children.length < apprenants.length) {
 				div_mosaique.insertAdjacentHTML('beforeend',
-					`<div onclick="focus_apprenant(this.children[0].innerText)">
+					`<div class=cellule onclick="focus_apprenant(this.children[0].innerText)">
 						<span></span>
 						<span class=lbl_position></span>
 					</div>`)
@@ -39,10 +39,19 @@ function maj_mosaique() {
 		for (let i = 0; i < apprenants.length; i++) {
 			const cellule = div_mosaique.children[i]
 			const apprenant = apprenants[i]
-			cellule.className = apprenant.statut
+			cellule.classList.toggle('present', apprenant.present)
 			cellule.children[0].innerText = apprenant.nom_apprenant
 			cellule.children[1].innerText = apprenant.position_assistance || ''
-			
+			if ('position_assistance' in apprenant) {
+				if (!cellule.classList.contains('unchecking'))
+					cellule.classList.add('checked')
+			} else {
+				cellule.classList.remove('checked')
+			}
+			if (apprenant.nom_apprenant === lbl_nom_apprenant.innerText) {
+				btn_fin_assistance.classList.toggle('checked', cellule.classList.contains('checked'))
+				btn_fin_assistance.value = apprenant.position_assistance || ''
+			}
 		}
 		
 		// récupération de données en vue apprenant
@@ -55,6 +64,7 @@ function maj_mosaique() {
 	}
 	ajax.open('POST', '?action=maj_mosaique')
 	ajax.setRequestHeader('Content-Type', 'application/json; charset=utf-8')
+	console.log(envoi)
 	ajax.send(JSON.stringify(envoi))
 }
 
@@ -98,8 +108,12 @@ inp_theme.onchange = () => {
 
 // commande de fin d'assistance en vue apprenant
 btn_fin_assistance.onclick = () => {
-	if (btn_fin_assistance.classList.contains('checked'))
+	if (btn_fin_assistance.classList.contains('checked')) {
 		btn_fin_assistance.classList.replace('checked', 'unchecking')
+		const cellule = Array.prototype.find.call(div_mosaique.children, c => c.children[0].innerText === lbl_nom_apprenant.innerText)
+		cellule.classList.replace('checked', 'unchecking')
+		maj_mosaique()
+	}
 }
 
 

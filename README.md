@@ -16,7 +16,7 @@ Les données de premier rang sont des variables globales du serveur. Lors de son
 * __salons__ - liste des informations sur chaque salon
 	* __nom_salon__ - chaîne telle qu'affichée dans chaque interface
 	* __apprenants__ - dictionnaire indexé par l'identifiant de chaque apprenant
-		* __statut__ - `absent`, `present`, `attente_assistance`
+		* __present__ - booléen indiquant si l'étudiant n'a pas quitté le salon
 		* __code__ - texte contenant le dernier programme obtenu
 		* __console__ - texte affiché dans la console de l'apprenant (à passer dans un sanitizer côté client mosaïque)
 		* __dernier_envoi__ - timestamp de la dernière mise à jour du code ou console
@@ -34,7 +34,7 @@ Tâches à gérer :
 
 ## Page d'enseignant
 
-L'indicateur de demande d'assistance de chaque cellule en mosaïque est une machine à 3 états (stockés comme classe de chaque cellule) :
+Le statut de demande d'assistance de chaque cellule en mosaïque est une machine à 3 états (stockés comme classe de chaque cellule) :
 
 * _∅_ - pas de demande en cours
 * _checked_ - l'apprenant de la cellule est sur liste d'attente d'assistance
