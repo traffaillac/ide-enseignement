@@ -147,7 +147,7 @@ inp_showInvisibles.onchange = () => {
 let identifiant = decodeURIComponent((document.cookie.split('; ').find(kv => kv.startsWith('identifiant=')) || 'identifiant=').slice('identifiant='.length))
 while (identifiant === '') {
 	identifiant = prompt('Veuillez renseigner votre Prénom et Nom pour accéder à ce salon') || ''
-	document.cookie = `identifiant=${encodeURIComponent(identifiant)}`
+	document.cookie = `identifiant=${encodeURIComponent(identifiant)};SameSite=Strict`
 }
 lbl_nom_apprenant.innerText = identifiant
 onpageshow = () => { post_serveur() }
@@ -157,7 +157,7 @@ btn_renommer.onclick = () => {
 	ajax.open('POST', '', false)
 	ajax.setRequestHeader('Content-Type', 'application/json; charset=utf-8')
 	ajax.send(JSON.stringify({sortie: true}))
-	document.cookie = 'identifiant='
+	document.cookie = 'identifiant=;SameSite=Strict'
 	document.location.reload()
 }
 
@@ -277,6 +277,7 @@ onbeforeunload = (e) => {
 }
 
 onfocus = async () => {
+	lbl_nom_fichier.style.backgroundColor = 'lightblue'
 	if (ref_fichier !== null) {
 		const file = await ref_fichier.getFile()
 		if (file.lastModified > version_fichier) {
@@ -295,6 +296,10 @@ onfocus = async () => {
 	}
 }
 
+onblur = () => {
+	lbl_nom_fichier.style.backgroundColor = 'lightgray'
+}
+
 
 
 // commande d'appel de l'enseignant et timer de contact régulier
@@ -307,7 +312,7 @@ btn_assistance.onclick = () => {
 		timer_post_serveur = null
 	} else {
 		btn_assistance.classList.add('checking')
-		timer_post_serveur = window.setInterval(post_serveur, 10000)
+		timer_post_serveur = window.setInterval(() => post_serveur('envoi_code'), 10000)
 	}
 	post_serveur('envoi_code')
 }
@@ -316,10 +321,11 @@ document.onvisibilitychange = () => {
 	if (timer_post_serveur === null)
 		return
 	if (document.visibilityState === 'hidden') {
+		post_serveur('envoi_code')
 		window.clearInterval(timer_post_serveur)
 		timer_post_serveur = true
 	} else {
-		timer_post_serveur = window.setInterval(post_serveur, 10000)
-		post_serveur()
+		timer_post_serveur = window.setInterval(() => post_serveur('envoi_code'), 10000)
+		post_serveur('envoi_code')
 	}
 }
