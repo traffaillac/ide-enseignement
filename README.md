@@ -63,8 +63,8 @@ Tâches à gérer :
 Le bouton d'assistance côté apprenant est une machine à 3 états (stockés comme classe du bouton) : 
 
 * _∅_ - on envoie `demande_assistance: false` à chaque requête au serveur pour interdire la présence en liste d'attente
-* _checking_ - on envoie `demande_assistance: true` à chaque requête pour demander l'ajout en liste d'attente
-* _checked_ - on envoie `demande_assistance: null` pour laisser le serveur gérer le maintien en liste d'attente
+* _checking_ - on contacte le serveur à intervalles réguliers, en envoyant `demande_assistance: true` à chaque requête pour demander l'ajout en liste d'attente
+* _checked_ - on continue les mises à jour régulières, en envoyant `demande_assistance: null` pour laisser le serveur gérer le maintien en liste d'attente
 
 Les transitions sont :
 

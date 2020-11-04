@@ -46,7 +46,7 @@ function maj_mosaique() {
 				if (!cellule.classList.contains('unchecking'))
 					cellule.classList.add('checked')
 			} else {
-				cellule.classList.remove('checked')
+				cellule.classList.remove('checked', 'unchecking')
 			}
 			if (apprenant.nom_apprenant === lbl_nom_apprenant.innerText) {
 				btn_fin_assistance.classList.toggle('checked', cellule.classList.contains('checked'))
@@ -70,7 +70,7 @@ function maj_mosaique() {
 
 let timer_maj_mosaique = window.setInterval(maj_mosaique, 10000)
 document.onvisibilitychange = () => {
-	if (document.visibilityState !== 'visible') {
+	if (document.visibilityState === 'hidden') {
 		window.clearInterval(timer_maj_mosaique)
 		timer_maj_mosaique = null
 	} else {

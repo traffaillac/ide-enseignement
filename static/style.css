@@ -55,10 +55,11 @@ select {
 }
 .icone:disabled { opacity: 0.5 }
 .icone:hover:enabled:not(.checking):not(.checked) { background-color: #e4e4e4 }
-.checking { background-color: gold }
-.checked {
+.icone.checking { background-color: gold }
+.icone.checked {
 	background-color: gold;
 	background-size: 0;
+	border: 2px solid gray;
 	font: bold 15px Raleway;
 }
 

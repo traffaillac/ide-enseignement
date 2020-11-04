@@ -289,15 +289,29 @@ onfocus = async () => {
 
 
 
-// commande d'appel de l'enseignant
+// commande d'appel de l'enseignant et timer de contact régulier
+let timer_post_serveur = null
 btn_assistance.onclick = () => {
-	if (btn_assistance.classList.contains('checking')) {
-		btn_assistance.classList.remove('checking')
-	} else if (btn_assistance.classList.contains('checked')) {
-		btn_assistance.classList.remove('checked')
+	if (btn_assistance.classList.contains('checking') || btn_assistance.classList.contains('checked')) {
+		btn_assistance.classList.remove('checking', 'checked')
 		btn_assistance.value = ''
+		window.clearInterval(timer_post_serveur)
+		timer_post_serveur = null
 	} else {
 		btn_assistance.classList.add('checking')
+		timer_post_serveur = window.setInterval(post_serveur, 10000)
 	}
 	post_serveur('envoi_code')
+}
+
+document.onvisibilitychange = () => {
+	if (timer_post_serveur === null)
+		return
+	if (document.visibilityState === 'hidden') {
+		window.clearInterval(timer_post_serveur)
+		timer_post_serveur = true
+	} else {
+		timer_post_serveur = window.setInterval(post_serveur, 10000)
+		post_serveur()
+	}
 }
