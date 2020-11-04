@@ -58,9 +58,10 @@ def page_apprenant(salon):
 		envoi['nom_salon'] = salon['nom_salon']
 	
 	# gestion des demandes d'assistance
-	if recu['demande_assistance'] == True and not apprenant in liste_assistances:
+	demande_assistance = recu.get('demande_assistance', None)
+	if demande_assistance == True and not apprenant in liste_assistances:
 		liste_assistances.append(apprenant)
-	elif recu['demande_assistance'] == False and apprenant in liste_assistances:
+	elif demande_assistance == False and apprenant in liste_assistances:
 		liste_assistances.remove(apprenant)
 	if apprenant in liste_assistances:
 		envoi['position_assistance'] = liste_assistances.index(apprenant) + 1

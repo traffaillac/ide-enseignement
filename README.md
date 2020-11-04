@@ -60,18 +60,23 @@ Tâches à gérer :
 
 ## Page d'apprenant
 
-Le bouton d'assistance côté apprenant est une machine à 3 états (stockés comme classe du bouton) : 
+Le bouton d'assistance côté apprenant est une machine à 4 états (stockés comme classe du bouton) : 
 
-* _∅_ - on envoie `demande_assistance: false` à chaque requête au serveur pour interdire la présence en liste d'attente
-* _checking_ - on contacte le serveur à intervalles réguliers, en envoyant `demande_assistance: true` à chaque requête pour demander l'ajout en liste d'attente
-* _checked_ - on continue les mises à jour régulières, en envoyant `demande_assistance: null` pour laisser le serveur gérer le maintien en liste d'attente
+* _∅_ - pas de demande d'assistance en cours
+* _checking_ - on ajoute `demande_assistance: true` à chaque requête au serveur pour demander l'ajout en liste d'attente
+* _checked_ - l'apprenant est en attente d'assistance, on envoie l'état du code et de la console à chaque requête au serveur tant que cet état est actif
+* _unchecking_ - on ajoute `demande_assistance: false` à chaque requête au serveur pour demander le retrait de la liste d'attente d'assistance
 
 Les transitions sont :
 
 * _∅_ → _checking_ par clic sur le bouton
+* _∅_ → _checked_ si le champ __position_assistance__ est présent dans une réponse du serveur
+* _checking_ → _checked_ si le champ __position_assistance__ est présent dans une réponse du serveur
 * _checking_ → _∅_ par clic sur le bouton
-* _checking_ → _checked_ sur présence du champ __position_assistance__ dans une réponse du serveur
-* _checked_ → _∅_ par clic sur le bouton ou si une réponse du serveur ne contient pas de champ __position_assistance__ 
+* _checked_ → _unchecking_ par clic sur le bouton
+* _checked_ → _∅_ si le champ __position_assistance__ est absent d'une réponse du serveur
+* _unchecking_ → _checked_ par clic sur le bouton
+* _unchecking_ → _∅_ si le champ __position_assistance__ est absent d'une réponse du serveur
 
 Tâches à gérer :
 

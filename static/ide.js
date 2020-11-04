@@ -1,53 +1,68 @@
 // fonctions de communication avec le serveur
-function post_serveur(action=null) {
+const ajax = new XMLHttpRequest() // globale pour interdire les requêtes simultanées
+let revision_dernier_envoi = null
+
+function maj_ide(modification_fichier=false) {
 	// préparation des données à envoyer
-	const envoi = { demande_assistance: btn_assistance.classList.contains('checked') ? null : btn_assistance.classList.contains('checking') }
-	if (action === 'envoi_code') {
-		envoi.code = ace_editeur.getValue()
-		envoi.console = txt_console.value
-	} else if (action === 'sortie') {
-		envoi.sortie = true
-	}
+	const envoi = {}
 	if (lbl_nom_salon.innerText === '')
 		envoi.nom_salon = true
+	const rev = ace_editeur.session.getUndoManager().$rev
+	const fsm = btn_assistance.classList
+	if ((modification_fichier && inp_envoi_auto.checked ||
+		fsm.contains('checking') || fsm.contains('checked')) &&
+		rev !== revision_dernier_envoi)
+	{
+		envoi.code = ace_editeur.getValue()
+		envoi.console = txt_console.value
+		revision_dernier_envoi = rev
+	}
+	if (fsm.contains('checking'))
+		envoi.demande_assistance = true
+	if (fsm.contains('unchecking'))
+		envoi.demande_assistance = false
+	if (Object.keys(envoi).length === 0)
+		return
 	
-	// création et envoi de la requête
-	const ajax = new XMLHttpRequest()
-	ajax.timeout = 1000 // évite de désorienter l'utilisateur avec des feedbacks différés
+	// envoi de la requête
+	ajax.open('POST', '')
 	ajax.onreadystatechange = () => {
 		if (ajax.readyState !== 4 || ajax.status !== 200)
 			return
 		const recu = JSON.parse(ajax.responseText)
-		if ('nom_salon' in recu)
+		if (recu.nom_salon !== undefined)
 			lbl_nom_salon.innerText = recu.nom_salon
-		if ('position_assistance' in recu) {
-			if (btn_assistance.classList.contains('checking')) {
-				btn_assistance.classList.remove('checking')
-				btn_assistance.classList.add('checked')
-				btn_assistance.value = recu.position_assistance
-			} else if (btn_assistance.classList.contains('checked')) {
+		if (recu.position_assistance !== undefined) {
+			if (!fsm.contains('unchecking')) {
+				fsm.remove('checking')
+				fsm.add('checked')
 				btn_assistance.value = recu.position_assistance
 			}
-		} else if (btn_assistance.classList.contains('checked')) {
-			btn_assistance.classList.remove('checked')
-			btn_assistance.value = ''
+		} else {
+			if (!fsm.contains('checking')) {
+				fsm.remove('checked', 'unchecking')
+				btn_assistance.value = ''
+			}
 		}
 	}
-	ajax.open('POST', '')
 	ajax.setRequestHeader('Content-Type', 'application/json; charset=utf-8')
 	ajax.send(JSON.stringify(envoi))
 }
 
-
-
-// variables globales à l'application
-let ref_fichier = null
-let ignorer_change = false
-let version_fichier = 0
+let timer_maj_ide = window.setInterval(maj_ide, 10000)
+document.onvisibilitychange = () => {
+	if (document.visibilityState === 'hidden') {
+		window.clearInterval(timer_maj_ide)
+		timer_maj_ide = null
+	} else {
+		timer_maj_ide = window.setInterval(maj_ide, 10000)
+	}
+}
 
 
 
 // initialisation de l'éditeur de texte
+let ignorer_change = false
 ace.config.set('basePath', 'https://pagecdn.io/lib/ace/1.4.12/')
 const ace_editeur = ace.edit('txt_editeur', {
 	mode: 'ace/mode/python',
@@ -143,26 +158,6 @@ inp_showInvisibles.onchange = () => {
 
 
 
-// obtention de l'identifiant de l'apprenant et téléchargement des données
-let identifiant = decodeURIComponent((document.cookie.split('; ').find(kv => kv.startsWith('identifiant=')) || 'identifiant=').slice('identifiant='.length))
-while (identifiant === '') {
-	identifiant = prompt('Veuillez renseigner votre Prénom et Nom pour accéder à ce salon') || ''
-	document.cookie = `identifiant=${encodeURIComponent(identifiant)};SameSite=Strict`
-}
-lbl_nom_apprenant.innerText = identifiant
-onpageshow = () => { post_serveur() }
-onpagehide = () => { post_serveur(action='sortie') }
-btn_renommer.onclick = () => {
-	const ajax = new XMLHttpRequest()
-	ajax.open('POST', '', false)
-	ajax.setRequestHeader('Content-Type', 'application/json; charset=utf-8')
-	ajax.send(JSON.stringify({sortie: true}))
-	document.cookie = 'identifiant=;SameSite=Strict'
-	document.location.reload()
-}
-
-
-
 // initialisation des raccourcis clavier
 onkeydown = (e) => {
 	if (!e.ctrlKey && !e.metaKey)
@@ -188,11 +183,8 @@ onkeydown = (e) => {
 
 
 // commandes d'association du code à un fichier
-function envoi_ok() {
-	return inp_envoi_auto.checked ||
-	       btn_assistance.classList.contains('checking') ||
-	       btn_assistance.classList.contains('checked')
-}
+let ref_fichier = null
+let timestamp_fichier = 0
 
 btn_nouveau.onclick = async () => {
 	if (lbl_indicateur_modifie.style.visibility === 'visible' &&
@@ -202,13 +194,12 @@ btn_nouveau.onclick = async () => {
 		ref_fichier = await showSaveFilePicker()
 	} catch (e) { return }
 	lbl_nom_fichier.textContent = ref_fichier.name
-	version_fichier = (await ref_fichier.getFile()).lastModified
+	timestamp_fichier = (await ref_fichier.getFile()).lastModified
 	lbl_indicateur_modifie.style.visibility = 'hidden'
 	ignorer_change = true
 	ace_editeur.session.setValue('')
 	ignorer_change = false
-	if (envoi_ok())
-		post_serveur(action='envoi_code')
+	maj_ide(true)
 }
 
 btn_ouvrir.onclick = async () => {
@@ -220,7 +211,7 @@ btn_ouvrir.onclick = async () => {
 	} catch (e) { return }
 	lbl_nom_fichier.textContent = ref_fichier.name
 	const file = await ref_fichier.getFile()
-	version_fichier = file.lastModified
+	timestamp_fichier = file.lastModified
 	lbl_indicateur_modifie.style.visibility = 'hidden'
 	const code = await file.text()
 	ignorer_change = true
@@ -237,37 +228,34 @@ btn_ouvrir.onclick = async () => {
 		inp_tabSize.value = indent
 		inp_tabSize.onchange()
 	}
-	if (envoi_ok())
-		post_serveur(action='envoi_code')
+	maj_ide(true)
 }
 
 btn_enregistrer.onclick = async () => {
-	if (envoi_ok())
-		post_serveur(action='envoi_code')
 	try {
 		if (ref_fichier === null) {
 			ref_fichier = await showSaveFilePicker()
 			lbl_nom_fichier.textContent = ref_fichier.name
 		}
-		const writable = await ref_fichier.createWritable() // demande éventuellement les droits d'écriture
-		await writable.write(ace_editeur.getValue())
-		await writable.close()
+		var writable = await ref_fichier.createWritable() // demande éventuellement les droits d'écriture
 	} catch (e) { return }
-	version_fichier = (await ref_fichier.getFile()).lastModified
+	maj_ide(true)
+	await writable.write(ace_editeur.getValue())
+	await writable.close()
+	timestamp_fichier = (await ref_fichier.getFile()).lastModified
 	lbl_indicateur_modifie.style.visibility = 'hidden'
 }
 
 btn_enregistrer_sous.onclick = async () => {
-	if (envoi_ok())
-		post_serveur(action='envoi_code')
 	try {
 		ref_fichier = await showSaveFilePicker()
 		lbl_nom_fichier.textContent = ref_fichier.name
-		const writable = await ref_fichier.createWritable()
-		await writable.write(ace_editeur.getValue())
-		await writable.close()
+		var writable = await ref_fichier.createWritable()
 	} catch (e) { return }
-	version_fichier = (await ref_fichier.getFile()).lastModified
+	maj_ide(true)
+	await writable.write(ace_editeur.getValue())
+	await writable.close()
+	timestamp_fichier = (await ref_fichier.getFile()).lastModified
 	lbl_indicateur_modifie.style.visibility = 'hidden'
 }
 
@@ -280,13 +268,12 @@ onfocus = async () => {
 	lbl_nom_fichier.style.backgroundColor = 'lightblue'
 	if (ref_fichier !== null) {
 		const file = await ref_fichier.getFile()
-		if (file.lastModified > version_fichier) {
+		if (file.lastModified > timestamp_fichier) {
 			if (lbl_indicateur_modifie.style.visibility === 'hidden') {
-				if (envoi_ok())
-					post_serveur(action='envoi_code')
 				ignorer_change = true
 				ace_editeur.setValue(await file.text())
 				ignorer_change = false
+				maj_ide(true)
 			} else {
 				alert("Le fichier a été modifié en dehors de l'application, pensez à enregistrer les modifications faites ici !")
 				lbl_nom_fichier.innerText = '<aucun fichier lié>'
@@ -302,30 +289,40 @@ onblur = () => {
 
 
 
-// commande d'appel de l'enseignant et timer de contact régulier
-let timer_post_serveur = null
+// commande d'appel de l'enseignant
 btn_assistance.onclick = () => {
-	if (btn_assistance.classList.contains('checking') || btn_assistance.classList.contains('checked')) {
-		btn_assistance.classList.remove('checking', 'checked')
-		btn_assistance.value = ''
-		window.clearInterval(timer_post_serveur)
-		timer_post_serveur = null
+	const fsm = btn_assistance.classList
+	if (fsm.contains('checking')) {
+		fsm.remove('checking')
+	} else if (fsm.contains('checked')) {
+		fsm.replace('checked', 'unchecking')
+	} else if (fsm.contains('unchecking')) {
+		fsm.replace('unchecking', 'checked')
 	} else {
-		btn_assistance.classList.add('checking')
-		timer_post_serveur = window.setInterval(() => post_serveur('envoi_code'), 10000)
+		fsm.add('checking')
 	}
-	post_serveur('envoi_code')
+	maj_ide()
 }
 
-document.onvisibilitychange = () => {
-	if (timer_post_serveur === null)
-		return
-	if (document.visibilityState === 'hidden') {
-		post_serveur('envoi_code')
-		window.clearInterval(timer_post_serveur)
-		timer_post_serveur = true
-	} else {
-		timer_post_serveur = window.setInterval(() => post_serveur('envoi_code'), 10000)
-		post_serveur('envoi_code')
-	}
+
+
+// identification après toutes les initialisations
+let identifiant = decodeURIComponent((document.cookie.split('; ').find(kv => kv.startsWith('identifiant=')) || 'identifiant=').slice('identifiant='.length))
+while (identifiant === '') {
+	identifiant = prompt('Veuillez renseigner votre Prénom et Nom pour accéder à ce salon') || ''
+	document.cookie = `identifiant=${encodeURIComponent(identifiant)};SameSite=Strict`
 }
+lbl_nom_apprenant.innerText = identifiant
+onpagehide = () => {
+	ajax.open('POST', '')
+	ajax.setRequestHeader('Content-Type', 'application/json; charset=utf-8')
+	ajax.send(JSON.stringify({sortie: true}))
+}
+btn_renommer.onclick = () => {
+	ajax.open('POST', '', false)
+	ajax.setRequestHeader('Content-Type', 'application/json; charset=utf-8')
+	ajax.send(JSON.stringify({sortie: true}))
+	document.cookie = 'identifiant=;SameSite=Strict'
+	document.location.reload()
+}
+maj_ide()
