@@ -145,13 +145,21 @@ inp_showInvisibles.onchange = () => {
 
 // obtention de l'identifiant de l'apprenant et téléchargement des données
 let identifiant = decodeURIComponent((document.cookie.split('; ').find(kv => kv.startsWith('identifiant=')) || 'identifiant=').slice('identifiant='.length))
-if (identifiant === '') {
+while (identifiant === '') {
 	identifiant = prompt('Veuillez renseigner votre Prénom et Nom pour accéder à ce salon') || ''
 	document.cookie = `identifiant=${encodeURIComponent(identifiant)}`
 }
 lbl_nom_apprenant.innerText = identifiant
 onpageshow = () => { post_serveur() }
 onpagehide = () => { post_serveur(action='sortie') }
+btn_renommer.onclick = () => {
+	const ajax = new XMLHttpRequest()
+	ajax.open('POST', '', false)
+	ajax.setRequestHeader('Content-Type', 'application/json; charset=utf-8')
+	ajax.send(JSON.stringify({sortie: true}))
+	document.cookie = 'identifiant='
+	document.location.reload()
+}
 
 
 

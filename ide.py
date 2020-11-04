@@ -15,17 +15,7 @@ acces_ouverts = {
 salons = [
   {
 	'nom_salon': 'Groupe A1a',
-	'apprenants': {
-	  'Thibault Raffaillac': {
-		'present': False,
-		'code': 'print("Hello world!")',
-		'console': 'Hello world!',
-		'dernier_envoi': 1602673199889,
-		'activite': [
-			(1602673199889, 'envoi_code'),
-		],
-	  },
-	},
+	'apprenants': {},
 	'liste_assistances': [],
   },
 ]
@@ -42,8 +32,10 @@ def page_apprenant(salon):
 	liste_assistances = salon['liste_assistances']
 	
 	# recherche de l'apprenant et création d'un nouveau si inconnu
-	try: identifiant = unquote(request.cookies['identifiant'])
+	try:
+		identifiant = unquote(request.cookies['identifiant'])
 	except: abort(400)
+	assert identifiant != ''
 	apprenant = apprenants.setdefault(identifiant, {
 		'present': True,
 		'code': '',

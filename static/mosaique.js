@@ -20,8 +20,8 @@ function maj_mosaique() {
 		// si le nombre d'apprenants a changé, on recalcule la taille de la grille
 		const apprenants = recu.apprenants
 		if (apprenants.length !== div_mosaique.children.length) {
-			const colonnes = Math.ceil(Math.sqrt(apprenants.length))
-			const lignes = Math.ceil(apprenants.length / colonnes)
+			const colonnes = Math.max(Math.ceil(Math.sqrt(apprenants.length)), 3)
+			const lignes = Math.max(Math.ceil(apprenants.length / colonnes), 3)
 			div_mosaique.style.gridTemplateColumns = `repeat(${colonnes}, 1fr)`
 			div_mosaique.style.gridTemplateRows = `repeat(${lignes}, 1fr)`
 			while (div_mosaique.children.length > apprenants.length)
@@ -64,7 +64,6 @@ function maj_mosaique() {
 	}
 	ajax.open('POST', '?action=maj_mosaique')
 	ajax.setRequestHeader('Content-Type', 'application/json; charset=utf-8')
-	console.log(envoi)
 	ajax.send(JSON.stringify(envoi))
 }
 
