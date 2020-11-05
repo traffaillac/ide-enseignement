@@ -1,3 +1,5 @@
+// FIXME: ajax global et fin du timeout
+
 // fonctions de communication avec le serveur
 function maj_mosaique() {
 	// préparation des données à envoyer

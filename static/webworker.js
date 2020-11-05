@@ -1,7 +1,6 @@
 importScripts('./pyodide.js')
 
 languagePluginLoader.then(() => {
-	console.log('ok')
 	postMessage(' OK\n')
 	pyodide.runPython(`
 		def _print_decorator(f):

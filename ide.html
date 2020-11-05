@@ -31,15 +31,17 @@
 				align-items: center;
 				justify-content: flex-start">
 				<span id=lbl_nom_fichier style="
-					background-color: lightblue;
+					background-color: lightgray;
 					border-radius: 6px;
 					padding: 6px">&lt;aucun fichier lié&gt;</span>
 				<span id=lbl_indicateur_modifie style="
 					visibility: hidden">﹡</span>
 				<!-- icones : https://icons8.com/icon/pack/editing/fluent-systems-regular -->
 				<input id=btn_nouveau class=icone type=button style="background-image:url('static/nouveau.png')">
+				<input id=inp_file type=file style="display:none">
 				<input id=btn_ouvrir class=icone type=button style="background-image:url('static/ouvrir.png')">
 				<input id=btn_enregistrer class=icone type=button style="background-image:url('static/enregistrer.png')">
+				<a id=a_download style="display:none" download></a>
 				<input id=btn_enregistrer_sous class=icone type=button style="background-image:url('static/enregistrer_sous.png')">
 				<input id=btn_executer class=icone type=button style="background-image:url('static/executer.png')" disabled>
 				<input id=btn_assistance class=icone type=button style="background-image: url('static/assistance.png')">

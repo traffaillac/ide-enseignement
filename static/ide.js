@@ -1,3 +1,5 @@
+// FIXME généraliser l'utilisation de textContent
+
 // fonctions de communication avec le serveur
 const ajax = new XMLHttpRequest() // globale pour interdire les requêtes simultanées
 let revision_dernier_envoi = null
@@ -5,7 +7,7 @@ let revision_dernier_envoi = null
 function maj_ide(modification_fichier=false) {
 	// préparation des données à envoyer
 	const envoi = {}
-	if (lbl_nom_salon.innerText === '')
+	if (lbl_nom_salon.textContent === '')
 		envoi.nom_salon = true
 	const rev = ace_editeur.session.getUndoManager().$rev
 	const fsm = btn_assistance.classList
@@ -31,7 +33,7 @@ function maj_ide(modification_fichier=false) {
 			return
 		const recu = JSON.parse(ajax.responseText)
 		if (recu.nom_salon !== undefined)
-			lbl_nom_salon.innerText = recu.nom_salon
+			lbl_nom_salon.textContent = recu.nom_salon
 		if (recu.position_assistance !== undefined) {
 			if (!fsm.contains('unchecking')) {
 				fsm.remove('checking')
@@ -113,11 +115,13 @@ selection_onglet(
 
 
 // initialisation de l'interpréteur Python dans un thread distinct
-txt_console.value += "Chargement de l'interpréteur Python..."
-try {
+if (navigator.userAgent.includes('Safari') && !navigator.userAgent.includes('Chrome')) {
+	txt_console.value = "L'interpréteur Python fonctionne uniquement avec Firefox et Chrome."
+} else try {
+	txt_console.value = "Chargement de l'interpréteur Python..."
 	const pyodide_worker = new Worker('./static/webworker.js')
 	pyodide_worker.onerror = (e) => {
-		console.log(`Error in pyodide_worker at ${e.filename}, line ${e.lineno}: ${e.message}`)
+		txt_console.value += `Plantage de l'interpréteur Python : ${e.message}`
 	}
 	pyodide_worker.onmessage = (e) => {
 		btn_executer.disabled = false
@@ -158,6 +162,137 @@ inp_showInvisibles.onchange = () => {
 
 
 
+// ouverture/enregistrement de fichiers avec API File System
+if (window.showOpenFilePicker && window.showSaveFilePicker) {
+	let ref_fichier = null
+	let timestamp_fichier = 0
+	lire_fichier = async () => {
+		try {
+			ref_fichier = (await showOpenFilePicker())[0]
+			fichier = await ref_fichier.getFile()
+			timestamp_fichier = fichier.lastModified
+			return [fichier.name, await fichier.text()]
+		} catch (e) { return undefined }
+	}
+	btn_nouveau.onclick = async () => {
+		if (lbl_indicateur_modifie.style.visibility === 'visible' &&
+			!confirm("Les modifications non sauvegardées vont être perdues, voulez-vous continuer ?"))
+			return
+		try {
+			ref_fichier = await showSaveFilePicker()
+		} catch (e) { return }
+		lbl_nom_fichier.textContent = ref_fichier.name
+		timestamp_fichier = (await ref_fichier.getFile()).lastModified
+		lbl_indicateur_modifie.style.visibility = 'hidden'
+		ignorer_change = true
+		ace_editeur.session.setValue('')
+		ignorer_change = false
+		maj_ide(true)
+	}
+	btn_enregistrer.onclick = async () => {
+		try {
+			if (ref_fichier === null) {
+				ref_fichier = await showSaveFilePicker()
+				lbl_nom_fichier.textContent = ref_fichier.name
+			}
+			var writable = await ref_fichier.createWritable() // demande éventuellement les droits d'écriture
+		} catch (e) { return }
+		maj_ide(true)
+		await writable.write(ace_editeur.getValue())
+		await writable.close()
+		timestamp_fichier = (await ref_fichier.getFile()).lastModified
+		lbl_indicateur_modifie.style.visibility = 'hidden'
+	}
+	btn_enregistrer_sous.onclick = async () => {
+		try {
+			ref_fichier = await showSaveFilePicker()
+			lbl_nom_fichier.textContent = ref_fichier.name
+			var writable = await ref_fichier.createWritable()
+		} catch (e) { return }
+		maj_ide(true)
+		await writable.write(ace_editeur.getValue())
+		await writable.close()
+		timestamp_fichier = (await ref_fichier.getFile()).lastModified
+		lbl_indicateur_modifie.style.visibility = 'hidden'
+	}
+	lbl_nom_fichier.style.backgroundColor = 'lightblue'
+	onfocus = async () => {
+		lbl_nom_fichier.style.backgroundColor = 'lightblue'
+		if (ref_fichier !== null) {
+			const file = await ref_fichier.getFile()
+			if (file.lastModified > timestamp_fichier) {
+				if (lbl_indicateur_modifie.style.visibility === 'hidden') {
+					ignorer_change = true
+					ace_editeur.setValue(await file.text())
+					ignorer_change = false
+					maj_ide(true)
+				} else {
+					alert("Le fichier a été modifié en dehors de l'application, pensez à enregistrer les modifications faites ici !")
+					lbl_nom_fichier.textContent = '<aucun fichier lié>'
+					ref_fichier = null
+				}
+			}
+		}
+	}
+	onblur = () => {
+		lbl_nom_fichier.style.backgroundColor = 'lightgray'
+	}
+
+// ouverture/enregistrement de fichiers sans API File System
+} else {
+	btn_nouveau.style.display = 'none'
+	lire_fichier = async () => new Promise((resolve, reject) => {
+		inp_file.onchange = () => {
+			const file = inp_file.files[0]
+			const reader = new FileReader()
+			reader.onloadend = (e) => resolve([file.name, e.srcElement.result])
+			reader.readAsText(file)
+		}
+		inp_file.click()
+	})
+	btn_enregistrer.onclick = () => {
+		maj_ide(true)
+		const fichier = new File([ace_editeur.getValue()], lbl_nom_fichier.textContent)
+		timestamp_fichier = fichier.lastModified
+		a_download.href = URL.createObjectURL(fichier)
+		a_download.setAttribute('download', lbl_nom_fichier.textContent)
+		a_download.click()
+		lbl_indicateur_modifie.style.visibility = 'hidden'
+	}
+	btn_enregistrer_sous.style.display = 'none'
+}
+
+// fonctions communes à l'ouverture/enregistrement de fichiers
+btn_ouvrir.onclick = async () => {
+	if (lbl_indicateur_modifie.style.visibility === 'visible' &&
+		!confirm("Les modifications non sauvegardées vont être perdues, voulez-vous continuer ?"))
+		return
+	const [nom, code] = await lire_fichier()
+	lbl_nom_fichier.textContent = nom
+	lbl_indicateur_modifie.style.visibility = 'hidden'
+	ignorer_change = true
+	ace_editeur.setValue(code)
+	ignorer_change = false
+	
+	let indent = detect_indent(code)
+	if (indent === '\t') {
+		inp_useSoftTabs.checked = false
+		inp_useSoftTabs.onchange()
+	} else if (indent !== undefined) {
+		inp_useSoftTabs.checked = true
+		inp_useSoftTabs.onchange()
+		inp_tabSize.value = indent
+		inp_tabSize.onchange()
+	}
+	maj_ide(true)
+}
+onbeforeunload = (e) => {
+	if (lbl_indicateur_modifie.style.visibility === 'visible')
+		return e.returnValue = "L'éditeur contient des modifications non sauvegardées, elles seront perdues si la fenêtre est fermée."
+}
+
+
+
 // initialisation des raccourcis clavier
 onkeydown = (e) => {
 	if (!e.ctrlKey && !e.metaKey)
@@ -178,113 +313,6 @@ onkeydown = (e) => {
 		e.preventDefault()
 		btn_enregistrer_sous.click()
 	}
-}
-
-
-
-// commandes d'association du code à un fichier
-let ref_fichier = null
-let timestamp_fichier = 0
-
-btn_nouveau.onclick = async () => {
-	if (lbl_indicateur_modifie.style.visibility === 'visible' &&
-		!confirm("Les modifications non sauvegardées vont être perdues, voulez-vous continuer ?"))
-		return
-	try {
-		ref_fichier = await showSaveFilePicker()
-	} catch (e) { return }
-	lbl_nom_fichier.textContent = ref_fichier.name
-	timestamp_fichier = (await ref_fichier.getFile()).lastModified
-	lbl_indicateur_modifie.style.visibility = 'hidden'
-	ignorer_change = true
-	ace_editeur.session.setValue('')
-	ignorer_change = false
-	maj_ide(true)
-}
-
-btn_ouvrir.onclick = async () => {
-	if (lbl_indicateur_modifie.style.visibility === 'visible' &&
-		!confirm("Les modifications non sauvegardées vont être perdues, voulez-vous continuer ?"))
-		return
-	try {
-		ref_fichier = (await showOpenFilePicker())[0]
-	} catch (e) { return }
-	lbl_nom_fichier.textContent = ref_fichier.name
-	const file = await ref_fichier.getFile()
-	timestamp_fichier = file.lastModified
-	lbl_indicateur_modifie.style.visibility = 'hidden'
-	const code = await file.text()
-	ignorer_change = true
-	ace_editeur.setValue(code)
-	ignorer_change = false
-	
-	let indent = detect_indent(code)
-	if (indent === '\t') {
-		inp_useSoftTabs.checked = false
-		inp_useSoftTabs.onchange()
-	} else if (indent !== undefined) {
-		inp_useSoftTabs.checked = true
-		inp_useSoftTabs.onchange()
-		inp_tabSize.value = indent
-		inp_tabSize.onchange()
-	}
-	maj_ide(true)
-}
-
-btn_enregistrer.onclick = async () => {
-	try {
-		if (ref_fichier === null) {
-			ref_fichier = await showSaveFilePicker()
-			lbl_nom_fichier.textContent = ref_fichier.name
-		}
-		var writable = await ref_fichier.createWritable() // demande éventuellement les droits d'écriture
-	} catch (e) { return }
-	maj_ide(true)
-	await writable.write(ace_editeur.getValue())
-	await writable.close()
-	timestamp_fichier = (await ref_fichier.getFile()).lastModified
-	lbl_indicateur_modifie.style.visibility = 'hidden'
-}
-
-btn_enregistrer_sous.onclick = async () => {
-	try {
-		ref_fichier = await showSaveFilePicker()
-		lbl_nom_fichier.textContent = ref_fichier.name
-		var writable = await ref_fichier.createWritable()
-	} catch (e) { return }
-	maj_ide(true)
-	await writable.write(ace_editeur.getValue())
-	await writable.close()
-	timestamp_fichier = (await ref_fichier.getFile()).lastModified
-	lbl_indicateur_modifie.style.visibility = 'hidden'
-}
-
-onbeforeunload = (e) => {
-	if (lbl_indicateur_modifie.style.visibility === 'visible')
-		return e.returnValue = "L'éditeur contient des modifications non sauvegardées, elles seront perdues si la fenêtre est fermée."
-}
-
-onfocus = async () => {
-	lbl_nom_fichier.style.backgroundColor = 'lightblue'
-	if (ref_fichier !== null) {
-		const file = await ref_fichier.getFile()
-		if (file.lastModified > timestamp_fichier) {
-			if (lbl_indicateur_modifie.style.visibility === 'hidden') {
-				ignorer_change = true
-				ace_editeur.setValue(await file.text())
-				ignorer_change = false
-				maj_ide(true)
-			} else {
-				alert("Le fichier a été modifié en dehors de l'application, pensez à enregistrer les modifications faites ici !")
-				lbl_nom_fichier.innerText = '<aucun fichier lié>'
-				ref_fichier = null
-			}
-		}
-	}
-}
-
-onblur = () => {
-	lbl_nom_fichier.style.backgroundColor = 'lightgray'
 }
 
 
@@ -312,7 +340,7 @@ while (identifiant === '') {
 	identifiant = prompt('Veuillez renseigner votre Prénom et Nom pour accéder à ce salon') || ''
 	document.cookie = `identifiant=${encodeURIComponent(identifiant)};SameSite=Strict`
 }
-lbl_nom_apprenant.innerText = identifiant
+lbl_nom_apprenant.textContent = identifiant
 onpagehide = () => {
 	ajax.open('POST', '')
 	ajax.setRequestHeader('Content-Type', 'application/json; charset=utf-8')
