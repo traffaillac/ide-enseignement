@@ -1,5 +1,3 @@
-// FIXME généraliser l'utilisation de textContent
-
 // fonctions de communication avec le serveur
 const ajax = new XMLHttpRequest() // globale pour interdire les requêtes simultanées
 let revision_dernier_envoi = null
