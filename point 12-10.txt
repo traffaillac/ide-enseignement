@@ -1,0 +1,16 @@
+diff correction
+automatiser les tests
+métrique de progression
+moyen quantitatif de tracer les évolutions
+qui est en retard
+donner la solution
+animation entre screenshots pour un étudiant
+aux collègues - quelles sont les infos que vous voulez avoir ? -> les afficher en successions
+quelle incitation pour faire utiliser l'outil aux étudiants ?
+
+Trouver une histoire/contexte -> suite au Covid, besoin de suivi des étudiants à distance, comment ils peuvent apprendre à distance, tjs avec un IDE, problèmes rencontrés avec les autres outils
+avant la séance comment ils préparent, pendant comment ils suivent, ...
+
+Euroviz -> ils aiment les représentations en glyphes complexes (une forme qui contient toutes les données multidimentionnelles
+
+Comment avoir un aperçu rapide de ce que les élèves ont fait pendant une période d'absence ?

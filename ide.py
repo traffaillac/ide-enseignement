@@ -1,24 +1,9 @@
 from flask import Flask, abort, jsonify, render_template, request, send_file
 from time import time
 from urllib.parse import unquote
+from init import acces_ouverts, salons
 
 app = Flask(__name__)
-
-
-# Données persistantes du serveur
-acces_ouverts = {
-	'admin': {'page': 'admin'},
-	'enseignant': {'page': 'enseignant', 'salon': 0},
-	'apprenant': {'page': 'apprenant', 'salon': 0},
-	'expiree': {'page': 'expiree'},
-}
-salons = [
-  {
-	'nom_salon': 'Groupe A1a',
-	'apprenants': {},
-	'liste_assistances': [],
-  },
-]
 
 
 

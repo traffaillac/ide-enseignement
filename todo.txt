@@ -1,0 +1,26 @@
+_ utilisation d'une BDD côté serveur
+_ délai de mise à jour plus court !
+_ appel régulier à maj_ide tant que le bouton est actif
+_ implémentation du chat XMPP par Converse.js (demander à Francis si OK pour utiliser celui de Centrale)
+_ implémentation du bouton de visio directe
+_ faire que la mosaïque se mette à jour même hors écran, et mette une notification dans le titre en cas d'appel
+_ corriger la détection de déconnexion des étudiants
+
+_ ajout d'un mode sombre
+_ rendre l'indicateur de modification plus intelligent si on undo sur la version enregistrée
+_ ajouter le support de la couleur dans la console
+_ ajouter le support de Pillow !!!
+_ dans l'interface, page de news, roadmap ordonnée et contact si besoin pressant
+_ ajout d'un écran de consentement à l'utilisation des données dans un cadre de recherche (on insiste sur le fait que c'est un prototype de recherche)
+_ côté enseignant, possibilité de supprimer de la mosaïque des étudiants absents
+_ ajouter une option pour lier Exécuter à Enregistrer
+_ ajouter des fonctionnalités de blacklist/whitelist sur les identifiants
+_ permettre de couper toute activité sur un salon hors d'une plage horaire
+_ ajouter des fonctionnalités d'interaction sur la mosaique (pour justifier l'outil et l'aspect recherche !)
+_ chargement des fichiers locaux au dossier (pour les modules, et la lecture de fichiers d'input)
+_ chat individuel
+_ chat à tous
+_ vidéo-conférence individuelle (via PeerJS)
+_ vidéo-conférence broadcast
+_ ExposeHK
+_ support de la coloration syntaxique pour les autres langages (le bouton Exécuter étant alors grisé)
